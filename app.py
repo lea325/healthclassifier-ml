@@ -2,425 +2,267 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import LeaveOneOut, cross_val_predict
+from sklearn.metrics import confusion_matrix, log_loss, roc_auc_score
 import warnings
 warnings.filterwarnings('ignore')
 
 st.set_page_config(
-    page_title="HealthAI — Tableau de bord clinique",
-    page_icon="",
+    page_title="HealthAI — Aide à la décision clinique",
+    page_icon="🏥",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Rajdhani:wght@600;700&display=swap');
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body, [class*="css"] {
     font-family: 'Inter', sans-serif !important;
-    background: #EEF4FF !important;
+    background: #F0F5FF !important;
 }
 .main .block-container { padding: 0 !important; max-width: 100% !important; }
-#MainMenu, footer, header { display: none !important; }
-section[data-testid="stSidebar"] { display: none !important; }
-div[data-testid="stRadio"] > label { display: none !important; }
-div[data-testid="stTextInput"] > label { display: none !important; }
-
-/* ── SHELL ── */
-.shell {
-    min-height: 100vh;
-    background: linear-gradient(145deg, #EEF4FF 0%, #E8F0FF 40%, #EEF8FF 100%);
-    padding: 0;
-}
+#MainMenu, footer, header, section[data-testid="stSidebar"] { display: none !important; }
 
 /* ── TOP BAR ── */
 .topbar {
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(99,139,255,0.15);
-    padding: 0 40px;
-    height: 60px;
+    background: rgba(255,255,255,0.96);
+    border-bottom: 1px solid #D0DCF0;
+    padding: 0 36px;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    box-shadow: 0 1px 8px rgba(26,95,212,0.07);
+    margin-bottom: 0;
 }
-.topbar-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-.brand-icon {
-    width: 34px;
-    height: 34px;
-    background: linear-gradient(135deg, #4F7EFF, #2BBFFF);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: linear-gradient(135deg, #1A5FD4, #2E7DFF);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-family: 'Rajdhani', sans-serif;
+    font-size: 17px; font-weight: 700;
+    box-shadow: 0 2px 8px rgba(26,95,212,0.28);
 }
 .brand-name {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 20px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #4F7EFF, #2BBFFF);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: 0.05em;
+    font-family: 'Rajdhani', sans-serif; font-size: 21px; font-weight: 700;
+    color: #1A5FD4; letter-spacing: 0.09em;
 }
-.brand-sub {
-    font-size: 11px;
-    color: #8FA3CC;
-    margin-left: 4px;
-    font-weight: 400;
-    -webkit-text-fill-color: #8FA3CC;
+.brand-sep { width: 1px; height: 22px; background: #D0DCF0; margin: 0 14px; }
+.brand-sub { font-size: 12px; color: #4A5E7A; }
+.live-badge {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 600; color: #00875A;
+    letter-spacing: 0.07em;
 }
-.topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+.live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #00875A; box-shadow: 0 0 8px rgba(0,135,90,0.5);
+    animation: blink 2s ease infinite; display: inline-block;
 }
-.topbar-badge {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 4px 12px;
-    border-radius: 20px;
-    background: rgba(79,126,255,0.1);
-    color: #4F7EFF;
-    border: 1px solid rgba(79,126,255,0.2);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+.dr-pill {
+    padding: 5px 14px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.07em;
+    background: #EBF2FF; color: #1A5FD4;
+    border: 1px solid rgba(46,125,255,0.22);
 }
 
-/* ── CONTENT GRID ── */
-.content {
-    padding: 32px 40px;
+/* ── SHELL ── */
+.shell {
     display: grid;
-    grid-template-columns: 300px 1fr 280px;
-    gap: 24px;
-    align-items: start;
+    grid-template-columns: 300px 1fr 300px;
+    min-height: calc(100vh - 56px);
+    background: linear-gradient(145deg, #EEF4FF 0%, #E8F0FF 50%, #EEF8FF 100%);
 }
 
-/* ── GLASS CARD ── */
-.glass {
-    background: rgba(255,255,255,0.75);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255,255,255,0.9);
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(79,126,255,0.08);
+/* ── SIDE PANELS ── */
+.side {
+    background: rgba(255,255,255,0.88);
+    border-right: 1px solid #D0DCF0;
+    padding: 20px 18px;
+    display: flex; flex-direction: column; gap: 14px;
 }
-.glass-blue {
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(79,126,255,0.15);
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(79,126,255,0.10);
+.side.right { border-right: none; border-left: 1px solid #D0DCF0; }
+
+/* ── BLOCKS ── */
+.blk {
+    background: #fff;
+    border: 1px solid #D0DCF0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 4px rgba(26,95,212,0.04);
+}
+.blk-hdr {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 12px; padding-bottom: 10px;
+    border-bottom: 1px solid #EEF2F8;
+}
+.blk-line {
+    width: 3px; height: 14px; border-radius: 2px;
+    background: linear-gradient(180deg, #1A5FD4, #00808C); flex-shrink: 0;
+}
+.blk-title {
+    font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 700;
+    color: #4A5E7A; letter-spacing: 0.12em; text-transform: uppercase;
 }
 
-/* ── PATIENT CARD ── */
-.patient-card { padding: 24px; margin-bottom: 16px; }
-.patient-avatar {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #4F7EFF22, #2BBFFF33);
-    border: 2px solid rgba(79,126,255,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    margin: 0 auto 14px;
+/* ── PATIENT ── */
+.avatar-zone { text-align: center; margin: 8px 0 14px; }
+.avatar-outer {
+    width: 72px; height: 72px; border-radius: 50%;
+    border: 2px solid #2E7DFF;
+    box-shadow: 0 0 0 6px rgba(46,125,255,0.08);
+    display: inline-flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #EBF2FF, #F0F7FF);
+    font-family: 'Rajdhani', sans-serif; font-size: 26px; font-weight: 700; color: #1A5FD4;
 }
-.patient-name {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: #1A2B5E;
-    text-align: center;
-    margin-bottom: 3px;
+.p-name {
+    font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700;
+    color: #1A2744; margin-bottom: 2px;
 }
-.patient-meta {
-    font-size: 12px;
-    color: #8FA3CC;
-    text-align: center;
-    margin-bottom: 16px;
-}
-.patient-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(79,126,255,0.2), transparent);
-    margin-bottom: 16px;
-}
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 7px 0;
-    border-bottom: 1px solid rgba(79,126,255,0.06);
-    font-size: 12px;
-}
-.info-row:last-child { border-bottom: none; }
-.info-key { color: #8FA3CC; font-weight: 500; }
-.info-val { color: #1A2B5E; font-weight: 600; }
+.p-sub { font-size: 11px; color: #8A9BB8; margin-bottom: 12px; }
+.p-div { height: 1px; background: linear-gradient(90deg,transparent,#D0DCF0,transparent); margin-bottom: 10px; }
+.info-r { display: flex; justify-content: space-between; padding: 5px 0; font-size: 11.5px; border-bottom: 1px solid #EEF2F8; }
+.info-r:last-child { border-bottom: none; }
+.ik { color: #8A9BB8; font-weight: 500; }
+.iv { color: #1A2744; font-weight: 600; text-align: right; }
 
-/* ── FORM SECTION ── */
-.form-card { padding: 24px; }
-.section-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(79,126,255,0.1);
+/* ── QUESTIONS ── */
+.q-r { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #EEF2F8; }
+.q-r:last-child { border-bottom: none; }
+.q-l { font-size: 12px; color: #1A2744; flex: 1; line-height: 1.3; padding-right: 8px; }
+.tog { display: flex; border: 1px solid #D0DCF0; border-radius: 6px; overflow: hidden; flex-shrink: 0; }
+.tb {
+    padding: 5px 11px; font-size: 11px; font-weight: 500;
+    background: transparent; border: none; cursor: pointer;
+    color: #8A9BB8; transition: all 0.12s; font-family: 'Inter', sans-serif;
 }
-.section-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #4F7EFF, #2BBFFF);
-    flex-shrink: 0;
-}
-.section-title-text {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    color: #1A2B5E;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-.q-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(79,126,255,0.06);
-}
-.q-row:last-child { border-bottom: none; }
-.q-label {
-    font-size: 13px;
-    color: #374882;
-    font-weight: 400;
-    flex: 1;
-}
-.q-toggle {
-    display: flex;
-    border: 1px solid rgba(79,126,255,0.25);
-    border-radius: 6px;
-    overflow: hidden;
-    flex-shrink: 0;
-}
-.q-opt {
-    padding: 5px 14px;
-    font-size: 11px;
-    font-weight: 500;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: #8FA3CC;
-    transition: all 0.12s;
-}
-.q-opt + .q-opt { border-left: 1px solid rgba(79,126,255,0.2); }
-.q-opt.on {
-    background: linear-gradient(135deg, #4F7EFF, #2BBFFF);
-    color: #FFFFFF;
-}
-.q-opt.on-red {
-    background: linear-gradient(135deg, #FF6B8A, #FF4F7E);
-    color: #FFFFFF;
-}
+.tb + .tb { border-left: 1px solid #D0DCF0; }
+.tb.on { background: #1A5FD4; color: #fff; }
+.tb.on-r { background: #C0392B; color: #fff; }
 
-/* ── RESULT PANEL ── */
-.result-panel { padding: 24px; }
+/* ── CENTER ── */
+.center-wrap { padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
 
-.score-ring-wrap {
-    width: 160px;
-    height: 160px;
-    margin: 0 auto 20px;
-    position: relative;
+/* ── HOLOGRAM ── */
+.holo-area {
+    position: relative; width: 100%; max-width: 560px;
+    height: 360px; flex-shrink: 0;
 }
-.score-ring-svg {
-    width: 160px;
-    height: 160px;
-    transform: rotate(-90deg);
-}
-.score-ring-inner {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-.score-num {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 42px;
-    font-weight: 700;
-    line-height: 1;
-}
-.score-unit {
-    font-size: 13px;
-    color: #8FA3CC;
-    margin-top: 2px;
-}
-
-.verdict-chip {
-    text-align: center;
-    margin-bottom: 16px;
-}
-.chip-inner {
-    display: inline-block;
-    padding: 6px 18px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-.chip-green { background: rgba(16,185,129,0.12); color: #059669; border: 1px solid rgba(16,185,129,0.25); }
-.chip-amber { background: rgba(245,158,11,0.12); color: #D97706; border: 1px solid rgba(245,158,11,0.25); }
-.chip-red   { background: rgba(255,79,126,0.12); color: #DC2626; border: 1px solid rgba(255,79,126,0.25); }
-
-.verdict-text {
-    font-size: 13px;
-    color: #374882;
-    line-height: 1.6;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-/* ── MINI INDICATORS ── */
-.indicators { margin-bottom: 0; }
-.ind-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(79,126,255,0.06);
-}
-.ind-item:last-child { border-bottom: none; }
-.ind-bar-wrap {
-    flex: 1;
-    height: 4px;
-    background: rgba(79,126,255,0.1);
-    border-radius: 99px;
-    overflow: hidden;
-}
-.ind-bar {
-    height: 100%;
-    border-radius: 99px;
-}
-.ind-bar.g { background: linear-gradient(90deg, #34D399, #10B981); }
-.ind-bar.r { background: linear-gradient(90deg, #FCA5A5, #F87171); }
-.ind-label { font-size: 11px; color: #8FA3CC; width: 80px; flex-shrink: 0; }
-.ind-val { font-size: 11px; font-weight: 600; width: 16px; flex-shrink: 0; }
-.ind-val.g { color: #10B981; }
-.ind-val.r { color: #DC2626; }
-
-/* ── RECO CARD ── */
-.reco-card { padding: 20px 24px; margin-top: 0; }
-.reco-item {
-    display: flex;
-    gap: 10px;
-    padding: 9px 0;
-    border-bottom: 1px solid rgba(79,126,255,0.06);
-    align-items: flex-start;
-}
-.reco-item:last-child { border-bottom: none; }
-.reco-bullet {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: #4F7EFF;
-    flex-shrink: 0;
-    margin-top: 6px;
-}
-.reco-bullet.ok { background: #10B981; }
-.reco-txt { font-size: 12px; color: #374882; line-height: 1.55; }
-
-/* ── SCAN VISUAL CENTER ── */
-.center-content { display: flex; flex-direction: column; gap: 16px; }
-.scan-card {
-    padding: 24px;
-    text-align: center;
-    min-height: 320px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-}
-.scan-rings {
-    position: absolute;
-    width: 280px;
-    height: 280px;
-    left: 50%;
-    top: 50%;
+.holo-area svg.bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.figure-wrap {
+    position: absolute; left: 50%; top: 44%;
     transform: translate(-50%, -50%);
+    width: 110px; height: 230px;
+    filter: drop-shadow(0 0 16px rgba(26,95,212,0.3)) drop-shadow(0 0 36px rgba(0,128,140,0.16));
+    animation: float 5s ease-in-out infinite;
 }
-.scan-figure {
-    position: relative;
-    z-index: 2;
-    font-size: 96px;
-    line-height: 1;
-    filter: drop-shadow(0 0 20px rgba(79,126,255,0.3));
+@keyframes float { 0%,100%{transform:translate(-50%,-50%)} 50%{transform:translate(-50%,-52%)} }
+.platform {
+    position: absolute; left: 50%; bottom: 16%;
+    transform: translateX(-50%);
+    width: 90px; height: 8px;
+    background: radial-gradient(ellipse, rgba(46,125,255,0.3), transparent 70%);
+    animation: glow 3s ease-in-out infinite;
 }
-.scan-label {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: #4F7EFF;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-top: 12px;
-    position: relative;
-    z-index: 2;
+@keyframes glow { 0%,100%{opacity:.5} 50%{opacity:1} }
+.holo-name {
+    position: absolute; bottom: 4%; left: 50%; transform: translateX(-50%);
+    font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 600;
+    color: #2E7DFF; letter-spacing: 0.16em; text-transform: uppercase;
+    white-space: nowrap; opacity: 0.8;
 }
+.dp {
+    position: absolute; display: flex; align-items: center;
+    gap: 5px; font-size: 10px; font-weight: 600;
+    font-family: 'Rajdhani', sans-serif; letter-spacing: 0.05em;
+}
+.dp-dot { width: 6px; height: 6px; border-radius: 50%; border: 1.5px solid currentColor; background: #fff; flex-shrink: 0; }
+.dp-line { height: 1px; background: currentColor; opacity: 0.4; }
+.dp-txt { white-space: nowrap; opacity: 0.85; }
 
-/* ── STAT CHIPS ── */
-.stat-chips {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
+/* ── SCORE ── */
+.score-zone {
+    width: 100%; max-width: 560px;
+    background: #fff; border: 1px solid #D0DCF0;
+    border-radius: 12px; padding: 20px 24px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 28px;
+    box-shadow: 0 1px 6px rgba(26,95,212,0.05);
 }
-.stat-chip {
-    padding: 16px;
-    border-radius: 12px;
-    text-align: center;
+.ring-area { position: relative; width: 150px; height: 150px; flex-shrink: 0; }
+.ring-area svg { transform: rotate(-90deg); }
+.ring-inner {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
-.stat-chip-val {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    line-height: 1;
-    margin-bottom: 4px;
+.ring-pct { font-family: 'Rajdhani', sans-serif; font-size: 46px; font-weight: 700; line-height: 1; }
+.ring-sub { font-size: 10px; color: #8A9BB8; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+.verdict-zone { flex: 1; max-width: 280px; }
+.v-chip {
+    display: inline-block; padding: 5px 14px; border-radius: 5px;
+    font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px;
 }
-.stat-chip-lab {
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    opacity: 0.75;
-}
-.chip-1 { background: rgba(79,126,255,0.08); border: 1px solid rgba(79,126,255,0.15); color: #4F7EFF; }
-.chip-2 { background: rgba(43,191,255,0.08); border: 1px solid rgba(43,191,255,0.15); color: #2BBFFF; }
-.chip-3 { background: rgba(99,91,255,0.08);  border: 1px solid rgba(99,91,255,0.15);  color: #635BFF; }
+.vc-g { background: #E6F6F0; color: #00875A; border: 1px solid rgba(0,135,90,0.2); }
+.vc-a { background: #FFF3E6; color: #B85C00; border: 1px solid rgba(184,92,0,0.2); }
+.vc-r { background: #FEF0EF; color: #C0392B; border: 1px solid rgba(192,57,43,0.2); }
+.v-desc { font-size: 13px; color: #4A5E7A; line-height: 1.65; }
 
-.disclaimer-text {
-    font-size: 11px;
-    color: #8FA3CC;
-    text-align: center;
-    padding: 12px 16px;
-    border-top: 1px solid rgba(79,126,255,0.08);
-    line-height: 1.5;
-    margin-top: 8px;
+/* ── STATS ── */
+.stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; max-width: 560px; }
+.sc {
+    background: #fff; border: 1px solid #D0DCF0; border-radius: 8px;
+    padding: 12px; text-align: center;
+    box-shadow: 0 1px 4px rgba(26,95,212,0.04);
 }
+.sc-val { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 700; line-height: 1; margin-bottom: 3px; }
+.sc-lab { font-size: 9.5px; color: #8A9BB8; letter-spacing: 0.07em; text-transform: uppercase; }
+
+/* ── INDICATORS ── */
+.ind-blk { width: 100%; max-width: 560px; background: #fff; border: 1px solid #D0DCF0; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(26,95,212,0.04); }
+.ind-r { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #EEF2F8; }
+.ind-r:last-child { border-bottom: none; }
+.ind-l { font-size: 11.5px; color: #4A5E7A; width: 118px; flex-shrink: 0; }
+.ind-t { flex: 1; height: 5px; background: #EEF2F8; border-radius: 99px; overflow: hidden; }
+.ind-f { height: 100%; border-radius: 99px; transition: width .45s ease; }
+.fg { background: linear-gradient(90deg, #00A86B, #00875A); }
+.fr { background: linear-gradient(90deg, #E08080, #C0392B); }
+.ind-s { font-size: 10.5px; font-weight: 600; width: 78px; text-align: right; flex-shrink: 0; }
+
+/* ── RECO ── */
+.reco-item { display: flex; gap: 9px; padding: 8px 0; border-bottom: 1px solid #EEF2F8; align-items: flex-start; }
+.reco-item:last-child { border-bottom: none; }
+.reco-bar { width: 3px; border-radius: 2px; align-self: stretch; flex-shrink: 0; min-height: 18px; }
+.rb-b { background: #2E7DFF; }
+.rb-g { background: #00875A; }
+.reco-txt { font-size: 12.5px; color: #1A2744; line-height: 1.6; }
+
+.alert-b { border-radius: 8px; padding: 11px 14px; font-size: 12.5px; color: #1A2744; line-height: 1.6; margin-top: 8px; }
+.ab-g { background: #E6F6F0; border: 1px solid rgba(0,135,90,0.2); }
+.ab-a { background: #FFF3E6; border: 1px solid rgba(184,92,0,0.2); }
+.ab-r { background: #FEF0EF; border: 1px solid rgba(192,57,43,0.2); }
+
+.fu-box { margin-top: 10px; padding: 14px; background: #EBF2FF; border-radius: 8px; border: 1px solid rgba(46,125,255,0.15); text-align: center; }
+.fu-val { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700; line-height: 1; }
+.fu-lbl { font-size: 10px; color: #8A9BB8; margin-top: 3px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+.disc { font-size: 10.5px; color: #8A9BB8; padding: 10px 14px; text-align: center; background: #F8FAFF; border: 1px solid #D0DCF0; border-radius: 8px; line-height: 1.5; }
+
+/* ── CONTEXT BANNER ── */
+.context-banner {
+    background: #EBF2FF; border: 1px solid rgba(46,125,255,0.2);
+    border-radius: 8px; padding: 10px 14px; margin-bottom: 4px;
+    font-size: 12px; color: #1A5FD4; line-height: 1.6;
+}
+.context-banner strong { color: #1A2744; }
 </style>
 """, unsafe_allow_html=True)
 
+# ── MODEL ──
 @st.cache_data
 def load_model():
     url = "https://raw.githubusercontent.com/lea325/healthclassifier-ml/refs/heads/main/%20Formulaire%20sans%20titre.csv"
@@ -437,269 +279,358 @@ def load_model():
         'rested':     {'Oui':1,'Non':0},
         'snacks':     {'Non':1,'Oui':0},
     }
-    for c,m in enc.items(): df[c+'_enc'] = df[c].map(m)
+    for c,m in enc.items():
+        df[c+'_enc'] = df[c].map(m)
     df['y'] = (df['healthy']=='Oui').astype(int)
     X = df[[c+'_enc' for c in enc]].values
     y = df['y'].values
     mod = LogisticRegression(penalty='l1',C=0.5,class_weight={0:5,1:1},
                              solver='liblinear',max_iter=2000,random_state=42)
     mod.fit(X, y)
-    return mod
+    loo = LeaveOneOut()
+    cv_p = cross_val_predict(mod, X, y, cv=loo, method='predict_proba')[:,1]
+    return mod, X, y, cv_p
 
-model = load_model()
+model, X, y, cv_probs = load_model()
 
-def get_prob(f,s):
-    return round(1/(1+np.exp(-(-0.8624+1.881*f+0.740*s)))*100, 1)
-
-# Session defaults
-for k,v in dict(fruits=1,sport=1,water=1,sleep=1,skip=1,snacks=1,cooking=1).items():
-    if k not in st.session_state: st.session_state[k] = v
+def sigmoid(z): return 1/(1+np.exp(-z))
+def get_prob(f,s): return round(sigmoid(-0.8624+1.881*f+0.740*s)*100,1)
 
 # ── TOP BAR ──
 st.markdown("""
 <div class="topbar">
-  <div class="topbar-brand">
-    <div class="brand-icon">✦</div>
-    <span class="brand-name">HealthAI</span>
-    <span class="brand-sub">Système d'aide à la décision clinique</span>
+  <div class="brand">
+    <div class="brand-mark">H</div>
+    <span class="brand-name">HEALTHAI</span>
+    <div class="brand-sep"></div>
+    <span class="brand-sub">Système d'aide à la décision clinique · Mode de vie & Prévention</span>
   </div>
-  <div class="topbar-right">
-    <span class="topbar-badge">Dr. Mode</span>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <span class="live-badge"><span class="live-dot"></span>&nbsp;SYSTÈME ACTIF</span>
+    <span class="dr-pill">INTERFACE MÉDECIN</span>
   </div>
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="shell"><div class="content">', unsafe_allow_html=True)
+st.markdown('<div class="shell">', unsafe_allow_html=True)
 
-# ════════════════════════════════════
-# COLONNE GAUCHE — PATIENT + FORM
-# ════════════════════════════════════
-st.markdown('<div style="display:flex;flex-direction:column;gap:16px;">', unsafe_allow_html=True)
+# ══ SIDE LEFT ══
+st.markdown('<div class="side">', unsafe_allow_html=True)
 
-# Identité patient
-st.markdown('<div class="glass patient-card">', unsafe_allow_html=True)
-prenom = st.text_input("Prénom", value="Marie", placeholder="Prénom", label_visibility="collapsed")
-nom    = st.text_input("Nom", value="Dupont", placeholder="Nom de famille", label_visibility="collapsed")
-age    = st.number_input("Âge", min_value=1, max_value=120, value=42, label_visibility="collapsed")
-medecin= st.text_input("Médecin", value="Dr. Martin", placeholder="Médecin traitant", label_visibility="collapsed")
+# Context banner
+st.markdown("""
+<div class="context-banner">
+  <strong>À propos de cet outil</strong><br>
+  HealthAI analyse les habitudes de vie déclarées d'un patient pour estimer sa probabilité d'être en bonne santé.
+  Renseignez les informations du patient, puis ajustez ses habitudes pour obtenir une évaluation instantanée.
+</div>
+""", unsafe_allow_html=True)
 
-initiales = (prenom[0] if prenom else "?") + (nom[0] if nom else "?")
+# Patient identity
+with st.form("patient_form"):
+    st.markdown('<div class="blk"><div class="blk-hdr"><div class="blk-line"></div><div class="blk-title">Dossier patient</div></div>', unsafe_allow_html=True)
+    prenom  = st.text_input("Prénom",    value="Marie",      label_visibility="collapsed", placeholder="Prénom")
+    nom     = st.text_input("Nom",       value="Dupont",     label_visibility="collapsed", placeholder="Nom de famille")
+    age     = st.number_input("Âge",     value=42, min_value=1, max_value=120, label_visibility="collapsed")
+    medecin = st.text_input("Médecin",   value="Dr. Martin", label_visibility="collapsed", placeholder="Médecin traitant")
+    st.form_submit_button("Mettre à jour le dossier", use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+ini = (prenom[0] if prenom else "?") + (nom[0] if nom else "?")
+
 st.markdown(f"""
-<div class="patient-avatar">{initiales.upper()}</div>
-<div class="patient-name">{prenom.upper()} {nom.upper()}</div>
-<div class="patient-meta">{age} ans · Patient(e)</div>
-<div class="patient-divider"></div>
-<div class="info-row"><span class="info-key">Médecin</span><span class="info-val">{medecin}</span></div>
-<div class="info-row"><span class="info-key">Évaluation</span><span class="info-val">Mode de vie</span></div>
-<div class="info-row"><span class="info-key">Modèle IA</span><span class="info-val">HealthAI v1.0</span></div>
-""", unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
-
-# Formulaire
-st.markdown('<div class="glass form-card">', unsafe_allow_html=True)
-st.markdown("""
-<div class="section-header">
-  <div class="section-dot"></div>
-  <div class="section-title-text">Habitudes alimentaires</div>
+<div class="blk">
+  <div class="avatar-zone">
+    <div class="avatar-outer">{ini.upper()}</div>
+  </div>
+  <div class="p-name" style="text-align:center">{prenom} {nom}</div>
+  <div class="p-sub" style="text-align:center">{age} ans · Consultation mode de vie</div>
+  <div class="p-div"></div>
+  <div class="info-r"><span class="ik">Médecin traitant</span><span class="iv">{medecin}</span></div>
+  <div class="info-r"><span class="ik">Type d'évaluation</span><span class="iv">Mode de vie</span></div>
+  <div class="info-r"><span class="ik">Outil clinique</span><span class="iv">HealthAI v1.0</span></div>
+  <div class="info-r"><span class="ik">Modèle</span><span class="iv">Validé · n = 19</span></div>
 </div>
 """, unsafe_allow_html=True)
 
-fruits_r = st.radio("f", ["≥ 2 portions/jour","< 2 portions/jour"], horizontal=True, key="rf")
-st.session_state.fruits = 1 if "≥ 2" in fruits_r else 0
-
-sport_r = st.radio("s", ["≥ 3 séances/sem","< 3 séances/sem"], horizontal=True, key="rs")
-st.session_state.sport = 1 if "≥ 3" in sport_r else 0
-
-cooking_r = st.radio("c", ["Cuisine maison","Plats préparés"], horizontal=True, key="rc")
-st.session_state.cooking = 1 if "maison" in cooking_r else 0
-
-snacks_r = st.radio("sn", ["Absent","Régulier"], horizontal=True, key="rsn")
-st.session_state.snacks = 1 if "Absent" in snacks_r else 0
-
-skip_r = st.radio("sk", ["Repas réguliers","Repas sautés"], horizontal=True, key="rsk")
-st.session_state.skip = 1 if "réguliers" in skip_r else 0
-
-st.markdown("""
-<div class="section-header" style="margin-top:20px;">
-  <div class="section-dot"></div>
-  <div class="section-title-text">Hydratation & Sommeil</div>
-</div>
-""", unsafe_allow_html=True)
-
-water_r = st.radio("w", ["≥ 1,5 L/jour","< 1,5 L/jour"], horizontal=True, key="rw")
-st.session_state.water = 1 if "≥ 1,5" in water_r else 0
-
-sleep_r = st.radio("sl", ["≥ 7 h/nuit","< 7 h/nuit"], horizontal=True, key="rsl")
-st.session_state.sleep = 1 if "≥ 7" in sleep_r else 0
-
-st.markdown('</div>', unsafe_allow_html=True)
+# Questions alimentation
+st.markdown('<div class="blk"><div class="blk-hdr"><div class="blk-line"></div><div class="blk-title">Alimentation</div></div>', unsafe_allow_html=True)
+fruits  = st.radio("Fruits & légumes / jour",   ["2 portions ou plus","Moins de 2 portions"],   horizontal=True, key="fruits")
+cooking = st.radio("Mode alimentaire",           ["Cuisine à domicile","Plats préparés"],         horizontal=True, key="cooking")
+snacks  = st.radio("Grignotage inter-repas",     ["Absent ou rare","Régulier"],                   horizontal=True, key="snacks")
+skip    = st.radio("Régularité des repas",       ["Repas réguliers","Repas sautés"],              horizontal=True, key="skip")
 st.markdown('</div>', unsafe_allow_html=True)
 
-# ════════════════════════════════════
-# COLONNE CENTRE
-# ════════════════════════════════════
-f = st.session_state.fruits
-s = st.session_state.sport
-pct = get_prob(f, s)
+st.markdown('<div class="blk"><div class="blk-hdr"><div class="blk-line"></div><div class="blk-title">Hydratation & Sommeil</div></div>', unsafe_allow_html=True)
+water = st.radio("Consommation d'eau / jour",   ["1,5 L ou plus","Moins de 1,5 L"], horizontal=True, key="water")
+sleep = st.radio("Durée du sommeil / nuit",     ["7 h ou plus","Moins de 7 h"],      horizontal=True, key="sleep")
+st.markdown('</div>', unsafe_allow_html=True)
 
+st.markdown('<div class="blk"><div class="blk-hdr"><div class="blk-line"></div><div class="blk-title">Activité physique</div></div>', unsafe_allow_html=True)
+sport = st.radio("Séances / semaine (≥ 30 min)", ["3 séances ou plus","Moins de 3 séances"], horizontal=True, key="sport")
+st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)  # end side left
+
+# ── Valeurs encodées ──
+fv = 1 if "2 portions" in fruits else 0
+sv = 1 if "3 séances"  in sport  else 0
+wv = 1 if "1,5 L ou"  in water  else 0
+slv= 1 if "7 h ou"    in sleep  else 0
+cv = 1 if "domicile"  in cooking else 0
+snv= 1 if "Absent"    in snacks  else 0
+skv= 1 if "réguliers" in skip   else 0
+
+pct  = get_prob(fv, sv)
+vals = [fv, sv, wv, slv, cv, snv, skv]
+good = sum(vals)
+bad  = 7 - good
+
+# Verdict
 if pct >= 65:
-    cls="green"; ring_col="#10B981"; chip_cls="chip-green"
-    verdict_court = "Profil favorable"
-    verdict_long  = f"Les habitudes de vie de {prenom} sont globalement satisfaisantes. Suivi standard recommandé."
+    col="color:#00875A"; ring_col="#00875A"
+    chip="vc-g"; chip_txt="Profil favorable"
+    v_desc=f"Les habitudes de vie de {prenom} sont globalement satisfaisantes. Un suivi standard est recommandé. Encourager le maintien du mode de vie actuel."
+    fu_txt="Reconduire l'évaluation lors du bilan annuel."
+    alert_cls="ab-g"
+    alert_txt=f"Aucune alerte clinique. Tous les critères majeurs sont dans les normes recommandées."
 elif pct >= 45:
-    cls="amber"; ring_col="#F59E0B"; chip_cls="chip-amber"
-    verdict_court = "Vigilance recommandée"
-    verdict_long  = f"Certaines habitudes de {prenom} présentent des facteurs de risque. Un suivi préventif est conseillé."
+    col="color:#B85C00"; ring_col="#B85C00"
+    chip="vc-a"; chip_txt="Vigilance recommandée"
+    v_desc=f"Certaines habitudes de {prenom} présentent des facteurs de risque modérés. Un suivi préventif renforcé est conseillé."
+    fu_txt="Consultation préventive recommandée dans les 3 mois."
+    alert_cls="ab-a"
+    alert_txt=f"Des ajustements comportementaux ciblés pourraient améliorer significativement le profil de santé."
 else:
-    cls="red"; ring_col="#EF4444"; chip_cls="chip-red"
-    verdict_court = "Bilan clinique requis"
-    verdict_long  = f"Le profil de {prenom} présente des facteurs défavorables. Un bilan approfondi est recommandé."
+    col="color:#C0392B"; ring_col="#C0392B"
+    chip="vc-r"; chip_txt="Bilan clinique requis"
+    v_desc=f"Le profil de {prenom} présente plusieurs facteurs défavorables cumulés. Un bilan clinique approfondi est recommandé sans délai."
+    fu_txt="Bilan clinique à planifier dans les 4 semaines."
+    alert_cls="ab-r"
+    alert_txt=f"Plusieurs facteurs de risque identifiés. Ne pas différer la prise en charge."
 
-# Score ring SVG
-circ = 2 * 3.14159 * 58
-dash_fill = round(circ * pct / 100, 1)
-dash_empty = round(circ - dash_fill, 1)
+# Ring SVG
+C = 2*3.14159*60
+fill = C*pct/100
+ring_svg = f"""
+<svg width="150" height="150" viewBox="0 0 150 150">
+  <circle cx="75" cy="75" r="60" fill="none" stroke="rgba(26,95,212,0.1)" stroke-width="9"/>
+  <circle cx="75" cy="75" r="60" fill="none" stroke="{ring_col}" stroke-width="9"
+    stroke-linecap="round"
+    stroke-dasharray="{round(fill,2)} {round(C-fill,2)}"
+    stroke-dashoffset="0"/>
+</svg>
+"""
 
-st.markdown('<div class="center-content">', unsafe_allow_html=True)
+# ══ CENTER ══
+st.markdown('<div style="background:linear-gradient(145deg,#EEF4FF,#E8F0FF,#EEF8FF);display:flex;flex-direction:column;align-items:center;padding:20px;gap:16px;">', unsafe_allow_html=True)
 
-# Scan + score
+# Hologram
 st.markdown(f"""
-<div class="glass scan-card">
-  <svg class="scan-rings" viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="140" cy="140" r="130" stroke="rgba(79,126,255,0.06)" stroke-width="1"/>
-    <circle cx="140" cy="140" r="110" stroke="rgba(79,126,255,0.08)" stroke-width="1"/>
-    <circle cx="140" cy="140" r="88"  stroke="rgba(79,126,255,0.10)" stroke-width="1"/>
-    <circle cx="140" cy="140" r="66"  stroke="rgba(79,126,255,0.12)" stroke-width="1.5"/>
-    <line x1="10"  y1="140" x2="270" y2="140" stroke="rgba(79,126,255,0.05)" stroke-width="1"/>
-    <line x1="140" y1="10"  x2="140" y2="270" stroke="rgba(79,126,255,0.05)" stroke-width="1"/>
+<div class="holo-area">
+  <svg class="bg" viewBox="0 0 560 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="280" cy="195" rx="250" ry="180" stroke="rgba(46,125,255,0.05)" stroke-width="1"/>
+    <ellipse cx="280" cy="195" rx="210" ry="150" stroke="rgba(46,125,255,0.07)" stroke-width="1"/>
+    <ellipse cx="280" cy="195" rx="165" ry="118" stroke="rgba(46,125,255,0.09)" stroke-width="1"/>
+    <ellipse cx="280" cy="195" rx="118" ry="84"  stroke="rgba(46,125,255,0.08)" stroke-width="1.5"/>
+    <ellipse cx="280" cy="195" rx="70"  ry="50"  stroke="rgba(46,125,255,0.05)" stroke-width="1"/>
+    <line x1="20"  y1="195" x2="540" y2="195" stroke="rgba(46,125,255,0.05)" stroke-width="1"/>
+    <line x1="280" y1="15"  x2="280" y2="350" stroke="rgba(46,125,255,0.05)" stroke-width="1"/>
+    <line x1="20"  y1="110" x2="540" y2="110" stroke="rgba(46,125,255,0.03)" stroke-width=".5" stroke-dasharray="4 8"/>
+    <line x1="20"  y1="290" x2="540" y2="290" stroke="rgba(46,125,255,0.03)" stroke-width=".5" stroke-dasharray="4 8"/>
+    <path d="M22 28 L22 18 L32 18" stroke="rgba(46,125,255,0.28)" stroke-width="1.5" fill="none"/>
+    <path d="M528 18 L538 18 L538 28" stroke="rgba(46,125,255,0.28)" stroke-width="1.5" fill="none"/>
+    <path d="M22 342 L22 352 L32 352" stroke="rgba(46,125,255,0.28)" stroke-width="1.5" fill="none"/>
+    <path d="M538 342 L538 352 L528 352" stroke="rgba(46,125,255,0.28)" stroke-width="1.5" fill="none"/>
+    <line x1="110" y1="100" x2="218" y2="138" stroke="rgba(46,125,255,0.18)" stroke-width="1"/>
+    <line x1="80"  y1="195" x2="200" y2="195" stroke="rgba(0,128,140,0.18)" stroke-width="1"/>
+    <line x1="100" y1="285" x2="210" y2="248" stroke="rgba(46,125,255,0.18)" stroke-width="1"/>
+    <line x1="450" y1="100" x2="342" y2="138" stroke="rgba(46,125,255,0.18)" stroke-width="1"/>
+    <line x1="480" y1="195" x2="360" y2="195" stroke="rgba(0,128,140,0.18)" stroke-width="1"/>
+    <line x1="460" y1="285" x2="350" y2="248" stroke="rgba(46,125,255,0.18)" stroke-width="1"/>
   </svg>
-  <div class="scan-figure">👤</div>
-  <div class="scan-label">{prenom} {nom} · Analyse en cours</div>
 
-  <div style="margin-top:24px;position:relative;z-index:2;width:100%;">
-    <div class="score-ring-wrap">
-      <svg class="score-ring-svg" viewBox="0 0 160 160">
-        <circle cx="80" cy="80" r="58" fill="none" stroke="rgba(79,126,255,0.1)" stroke-width="10"/>
-        <circle cx="80" cy="80" r="58" fill="none" stroke="{ring_col}" stroke-width="10"
-          stroke-linecap="round"
-          stroke-dasharray="{dash_fill} {dash_empty}"
-          stroke-dashoffset="0"/>
-      </svg>
-      <div class="score-ring-inner">
-        <div class="score-num" style="color:{ring_col};">{pct}<span style="font-size:16px">%</span></div>
-        <div class="score-unit">Bonne santé</div>
-      </div>
-    </div>
-    <div class="verdict-chip">
-      <span class="chip-inner {chip_cls}">{verdict_court}</span>
-    </div>
-    <div class="verdict-text">{verdict_long}</div>
+  <svg class="figure-wrap" viewBox="0 0 80 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="40" cy="17" rx="13" ry="14" stroke="#1A5FD4" stroke-width="1.4" fill="rgba(46,125,255,0.07)"/>
+    <rect x="35.5" y="30" width="9" height="8" rx="2" stroke="#1A5FD4" stroke-width="1.2" fill="rgba(46,125,255,0.05)"/>
+    <path d="M22 38 Q17 42 17 58 L17 98 Q17 102 21 102 L59 102 Q63 102 63 98 L63 58 Q63 42 58 38 Z"
+      stroke="#1A5FD4" stroke-width="1.4" fill="rgba(46,125,255,0.06)"/>
+    <path d="M22 42 Q11 46 9 66 L7 88 Q6 92 9 93 L13 93 Q16 92 17 88 L19 66 Z"
+      stroke="#1A5FD4" stroke-width="1.2" fill="rgba(46,125,255,0.05)"/>
+    <path d="M58 42 Q69 46 71 66 L73 88 Q74 92 71 93 L67 93 Q64 92 63 88 L61 66 Z"
+      stroke="#1A5FD4" stroke-width="1.2" fill="rgba(46,125,255,0.05)"/>
+    <path d="M23 102 L21 138 L19 168 Q18 173 21 174 L29 174 Q32 173 33 168 L35 138 L37 102 Z"
+      stroke="#1A5FD4" stroke-width="1.2" fill="rgba(46,125,255,0.05)"/>
+    <path d="M57 102 L59 138 L61 168 Q62 173 59 174 L51 174 Q48 173 47 168 L45 138 L43 102 Z"
+      stroke="#1A5FD4" stroke-width="1.2" fill="rgba(46,125,255,0.05)"/>
+    <ellipse cx="25" cy="180" rx="8" ry="5" stroke="#1A5FD4" stroke-width="1" fill="rgba(46,125,255,0.05)"/>
+    <ellipse cx="55" cy="180" rx="8" ry="5" stroke="#1A5FD4" stroke-width="1" fill="rgba(46,125,255,0.05)"/>
+    <circle cx="34" cy="60" r="4" fill="none" stroke="{'#C0392B' if pct < 45 else '#00875A'}" stroke-width="1.2"/>
+    <circle cx="34" cy="60" r="1.5" fill="{'#C0392B' if pct < 45 else '#00875A'}" opacity="0.6"/>
+    <line x1="40" y1="38" x2="40" y2="100" stroke="rgba(46,125,255,0.25)" stroke-width=".8" stroke-dasharray="3 3"/>
+    <line x1="24" y1="68" x2="56" y2="68" stroke="rgba(46,125,255,0.14)" stroke-width=".8"/>
+    <line x1="22" y1="82" x2="58" y2="82" stroke="rgba(46,125,255,0.14)" stroke-width=".8"/>
+  </svg>
+
+  <div class="platform"></div>
+
+  <div class="dp" style="left:8px;top:20%;color:#1A5FD4;flex-direction:row;">
+    <div class="dp-dot"></div><div class="dp-line" style="width:22px"></div>
+    <div class="dp-txt">Alimentation — {'OK' if fv else 'Alerte'}</div>
   </div>
+  <div class="dp" style="left:4px;top:46%;color:{'#00808C' if wv else '#C0392B'};flex-direction:row;">
+    <div class="dp-dot"></div><div class="dp-line" style="width:22px"></div>
+    <div class="dp-txt">Hydratation — {'OK' if wv else 'Insuffisante'}</div>
+  </div>
+  <div class="dp" style="left:6px;top:70%;color:{'#1A5FD4' if sv else '#C0392B'};flex-direction:row;">
+    <div class="dp-dot"></div><div class="dp-line" style="width:22px"></div>
+    <div class="dp-txt">Activité — {'OK' if sv else 'Insuffisante'}</div>
+  </div>
+  <div class="dp" style="right:6px;top:20%;color:{'#1A5FD4' if slv else '#C0392B'};flex-direction:row-reverse;">
+    <div class="dp-dot"></div><div class="dp-line" style="width:22px"></div>
+    <div class="dp-txt">Sommeil — {'OK' if slv else 'Insuffisant'}</div>
+  </div>
+  <div class="dp" style="right:2px;top:46%;color:{'#00808C' if cv else '#C0392B'};flex-direction:row-reverse;">
+    <div class="dp-dot"></div><div class="dp-line" style="width:22px"></div>
+    <div class="dp-txt">Cuisine — {'OK' if cv else 'À revoir'}</div>
+  </div>
+  <div class="dp" style="right:4px;top:70%;color:{'#1A5FD4' if snv else '#C0392B'};flex-direction:row-reverse;">
+    <div class="dp-dot"></div><div class="dp-line" style="width:22px"></div>
+    <div class="dp-txt">Grignotage — {'Absent' if snv else 'Présent'}</div>
+  </div>
+
+  <div class="holo-name">{prenom} {nom} · Analyse mode de vie</div>
 </div>
 """, unsafe_allow_html=True)
 
-# Stats chips
+# Score centré
 st.markdown(f"""
-<div class="stat-chips">
-  <div class="glass stat-chip chip-1">
-    <div class="stat-chip-val">{7 - [f,s,st.session_state.water,st.session_state.sleep,st.session_state.cooking,st.session_state.snacks,st.session_state.skip].count(0)}/7</div>
-    <div class="stat-chip-lab">Critères favorables</div>
+<div class="score-zone">
+  <div class="ring-area">
+    <svg width="150" height="150" viewBox="0 0 150 150">
+      <circle cx="75" cy="75" r="60" fill="none" stroke="rgba(26,95,212,0.1)" stroke-width="9"/>
+      <circle cx="75" cy="75" r="60" fill="none" stroke="{ring_col}" stroke-width="9"
+        stroke-linecap="round"
+        stroke-dasharray="{round(fill,1)} {round(C-fill,1)}"
+        stroke-dashoffset="0"/>
+    </svg>
+    <div class="ring-inner">
+      <div class="ring-pct" style="{col}">{pct}%</div>
+      <div class="ring-sub">Score santé</div>
+    </div>
   </div>
-  <div class="glass stat-chip chip-2">
-    <div class="stat-chip-val">{[f,s,st.session_state.water,st.session_state.sleep,st.session_state.cooking,st.session_state.snacks,st.session_state.skip].count(0)}</div>
-    <div class="stat-chip-lab">Points d'attention</div>
-  </div>
-  <div class="glass stat-chip chip-3">
-    <div class="stat-chip-val">{age}</div>
-    <div class="stat-chip-lab">Âge du patient</div>
+  <div class="verdict-zone">
+    <div class="v-chip {chip}">{chip_txt}</div>
+    <div class="v-desc">{v_desc}</div>
   </div>
 </div>
 """, unsafe_allow_html=True)
 
-# Indicateurs
-habits = [
-    ("Alimentation",   f,                          "favorable" if f else "défavorable"),
-    ("Sport",          s,                          "favorable" if s else "défavorable"),
-    ("Hydratation",    st.session_state.water,     "favorable" if st.session_state.water else "à améliorer"),
-    ("Sommeil",        st.session_state.sleep,     "favorable" if st.session_state.sleep else "insuffisant"),
-    ("Cuisine maison", st.session_state.cooking,   "favorable" if st.session_state.cooking else "à revoir"),
-    ("Régularité",     st.session_state.skip,      "favorable" if st.session_state.skip else "irrégulier"),
-    ("Grignotage",     st.session_state.snacks,    "absent" if st.session_state.snacks else "présent"),
+# Stats
+st.markdown(f"""
+<div class="stats-row">
+  <div class="sc">
+    <div class="sc-val" style="{col}">{good}/7</div>
+    <div class="sc-lab">Critères favorables</div>
+  </div>
+  <div class="sc">
+    <div class="sc-val" style="{'color:#C0392B' if bad>0 else 'color:#00875A'}">{bad}</div>
+    <div class="sc-lab">Points d'attention</div>
+  </div>
+  <div class="sc">
+    <div class="sc-val" style="color:#1A5FD4">{age}</div>
+    <div class="sc-lab">Âge du patient</div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+# Indicators
+ind_cfg = [
+    ("Fruits & légumes", fv,  "Favorable","Insuffisant"),
+    ("Activité physique", sv, "Favorable","Insuffisante"),
+    ("Hydratation",       wv, "Favorable","Insuffisante"),
+    ("Sommeil",           slv,"Favorable","Insuffisant"),
+    ("Cuisine maison",    cv, "Favorable","À revoir"),
+    ("Régularité repas",  skv,"Réguliers","Irréguliers"),
+    ("Grignotage",        snv,"Absent",   "Présent"),
 ]
+rows = ""
+for lbl, v, ok_txt, ko_txt in ind_cfg:
+    bar_cls = "fg" if v else "fr"
+    bar_w   = "100%" if v else "16%"
+    sc      = "color:#00875A" if v else "color:#C0392B"
+    txt     = ok_txt if v else ko_txt
+    rows += f'<div class="ind-r"><div class="ind-l">{lbl}</div><div class="ind-t"><div class="ind-f {bar_cls}" style="width:{bar_w}"></div></div><div class="ind-s" style="{sc}">{txt}</div></div>'
 
-st.markdown('<div class="glass" style="padding:18px 22px;">', unsafe_allow_html=True)
-st.markdown('<div class="section-header"><div class="section-dot"></div><div class="section-title-text">Indicateurs de mode de vie</div></div>', unsafe_allow_html=True)
-for label, val, txt in habits:
-    col = "g" if val == 1 else "r"
-    st.markdown(f"""
-    <div class="ind-item">
-      <div class="ind-label">{label}</div>
-      <div class="ind-bar-wrap"><div class="ind-bar {col}" style="width:{100 if val else 25}%"></div></div>
-      <div class="ind-val {col}">{"✓" if val else "✗"}</div>
-    </div>
-    """, unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+st.markdown(f"""
+<div class="ind-blk">
+  <div class="blk-hdr"><div class="blk-line"></div><div class="blk-title">Indicateurs de mode de vie</div></div>
+  {rows}
+</div>
+""", unsafe_allow_html=True)
 
-# ════════════════════════════════════
-# COLONNE DROITE — RECOMMANDATIONS
-# ════════════════════════════════════
-st.markdown('<div style="display:flex;flex-direction:column;gap:16px;">', unsafe_allow_html=True)
-st.markdown('<div class="glass reco-card">', unsafe_allow_html=True)
-st.markdown('<div class="section-header"><div class="section-dot"></div><div class="section-title-text">Recommandations</div></div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)  # end center
 
+# ══ SIDE RIGHT ══
+st.markdown('<div class="side right">', unsafe_allow_html=True)
+
+# Recommandations
 recos = []
-if f == 0:
-    recos.append("Augmenter les fruits & légumes à 2 portions minimum par jour.")
-if s == 0:
-    recos.append("Prescrire 3 séances d'activité physique de 30 min par semaine.")
-if st.session_state.snacks == 0:
-    recos.append("Réduire le grignotage — favoriser des collations saines si nécessaire.")
-if st.session_state.water == 0:
-    recos.append("Augmenter l'apport hydrique à 1,5 L d'eau par jour.")
-if st.session_state.sleep == 0:
-    recos.append("Améliorer l'hygiène du sommeil — objectif : 7 heures par nuit.")
-if st.session_state.cooking == 0:
-    recos.append("Recommander la cuisine à domicile pour limiter les apports transformés.")
-if st.session_state.skip == 0:
-    recos.append("Structurer les prises alimentaires en 3 repas réguliers par jour.")
+if not fv:  recos.append("Augmenter la consommation de fruits et légumes à 2 portions minimum par jour.")
+if not sv:  recos.append("Prescrire 3 séances d'activité physique de 30 minutes par semaine.")
+if not snv: recos.append("Réduire le grignotage — favoriser des collations saines si nécessaire.")
+if not wv:  recos.append("Augmenter l'apport hydrique à 1,5 litre d'eau par jour minimum.")
+if not slv: recos.append("Améliorer l'hygiène du sommeil — objectif : 7 heures par nuit.")
+if not cv:  recos.append("Recommander la cuisine à domicile pour limiter les apports transformés.")
+if not skv: recos.append("Structurer les prises alimentaires en 3 repas réguliers par jour.")
 
+reco_html = ""
 if recos:
     for r in recos:
-        st.markdown(f'<div class="reco-item"><div class="reco-bullet"></div><div class="reco-txt">{r}</div></div>', unsafe_allow_html=True)
+        reco_html += f'<div class="reco-item"><div class="reco-bar rb-b"></div><div class="reco-txt">{r}</div></div>'
 else:
-    st.markdown('<div class="reco-item"><div class="reco-bullet ok"></div><div class="reco-txt">Toutes les habitudes évaluées sont favorables. Encourager le maintien du mode de vie actuel.</div></div>', unsafe_allow_html=True)
+    reco_html = '<div class="reco-item"><div class="reco-bar rb-g"></div><div class="reco-txt">Toutes les habitudes évaluées sont favorables. Encourager le maintien du mode de vie actuel.</div></div>'
 
-st.markdown('</div>', unsafe_allow_html=True)
-
-# Prochain rendez-vous
 st.markdown(f"""
-<div class="glass" style="padding:18px 22px;">
-  <div class="section-header">
-    <div class="section-dot"></div>
-    <div class="section-title-text">Suivi recommandé</div>
+<div class="blk">
+  <div class="blk-hdr"><div class="blk-line"></div><div class="blk-title">Recommandations cliniques</div></div>
+  {reco_html}
+</div>
+""", unsafe_allow_html=True)
+
+# Suivi
+st.markdown(f"""
+<div class="blk">
+  <div class="blk-hdr"><div class="blk-line"></div><div class="blk-title">Suivi recommandé</div></div>
+  <div style="font-size:12.5px;color:#4A5E7A;line-height:1.65">{fu_txt}</div>
+  <div class="fu-box">
+    <div class="fu-val" style="{col}">{pct}%</div>
+    <div class="fu-lbl">Score de santé</div>
   </div>
-  <div style="font-size:13px;color:#374882;line-height:1.7;">
-    {"Bilan clinique à planifier dans les <strong>4 semaines</strong>." if pct < 45 else
-     ("Consultation préventive recommandée dans les <strong>3 mois</strong>." if pct < 65 else
-      "Reconduire l'évaluation mode de vie lors du <strong>bilan annuel</strong>.")}
-  </div>
-  <div style="margin-top:14px;padding:12px;background:rgba(79,126,255,0.06);border-radius:8px;border:1px solid rgba(79,126,255,0.12);">
-    <div style="font-size:11px;color:#8FA3CC;margin-bottom:2px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;">Score de risque global</div>
-    <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:{ring_col};">{pct}%</div>
-    <div style="font-size:11px;color:#8FA3CC;">Probabilité d'être en bonne santé</div>
+  <div class="alert-b {alert_cls}">{alert_txt}</div>
+</div>
+""", unsafe_allow_html=True)
+
+# À propos du modèle
+st.markdown(f"""
+<div class="blk">
+  <div class="blk-hdr"><div class="blk-line"></div><div class="blk-title">À propos du modèle</div></div>
+  <div style="font-size:12px;color:#4A5E7A;line-height:1.7;">
+    Ce score est calculé par un modèle de classification supervisée entraîné sur des données
+    collectées via sondage (n = 19 patients). Le modèle a été optimisé pour ne manquer aucun
+    profil à risque — il peut générer des alertes conservatrices sur des profils intermédiaires.<br><br>
+    <strong style="color:#1A2744;">Sondage :</strong> 8 questions sur les habitudes de vie (alimentation, sport, sommeil, hydratation).<br>
+    <strong style="color:#1A2744;">Précision :</strong> 84.2% · Rappel sur profils à risque : 100%.
   </div>
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown("""
-<div class="glass" style="padding:14px 18px;">
-  <div class="disclaimer-text">
-    Outil d'aide à la décision clinique — ne se substitue pas au jugement du praticien.
-    Évaluation basée sur les habitudes de vie déclarées par le patient.
-  </div>
+<div class="disc">
+  Outil d'aide à la décision clinique.<br>
+  Ne se substitue pas au jugement du praticien ni à un examen clinique complet.
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown('</div>', unsafe_allow_html=True)
-st.markdown('</div></div></div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)  # end side right
+st.markdown('</div>', unsafe_allow_html=True)  # end shell
