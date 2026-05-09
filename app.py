@@ -14,7 +14,7 @@ st.set_page_config(page_title="HealthClassifier", page_icon="🏥", layout="wide
 # ── LOAD & TRAIN ──
 @st.cache_data
 def load_and_train():
-    df = pd.read_csv("Formulaire_sans_titre.csv")
+    df = pd.read_csv("Formulaire sans titre.csv")
     df.columns = ['timestamp','age','skip_meals','fruits','cooking',
                   'water','sport','sleep','rested','snacks','healthy']
     enc = {
