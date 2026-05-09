@@ -548,8 +548,18 @@ function render(){
   document.getElementById('fu-val').textContent=pct+'%';
   document.getElementById('fu-val').style.color=col;
   document.getElementById('fu-txt').textContent=fuTxt;
+  // Alert depends on actual bad habits, not just score
   const ab=document.getElementById('alert-box');
-  ab.className='alert-box '+alertCls;ab.textContent=alertTxt;
+  if(bad===0){
+    ab.className='alert-box ag';
+    ab.textContent='Toutes les habitudes évaluées sont favorables. Encourager le maintien du mode de vie actuel.';
+  } else if(bad<=2){
+    ab.className='alert-box aa';
+    ab.textContent=bad+' habitude'+(bad>1?'s':'')+' défavorable'+(bad>1?'s':'')+' identifiée'+(bad>1?'s':'')+'. Des recommandations ciblées sont indiquées — voir le panneau de droite.';
+  } else {
+    ab.className='alert-box ar';
+    ab.textContent=bad+' habitudes défavorables identifiées. Une prise en charge préventive est recommandée — consulter les recommandations cliniques.';
+  }
   document.getElementById('synthese').textContent=synthese;
 
   const labels={
