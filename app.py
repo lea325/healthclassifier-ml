@@ -14,7 +14,7 @@ st.set_page_config(page_title="HealthClassifier", page_icon="🏥", layout="wide
 # ── LOAD & TRAIN ──
 @st.cache_data
 def load_and_train():
-    url = "https://raw.githubusercontent.com/lea325/healthclassifier-ml/main/Formulaire%20sans%20titre.csv"
+    url = "https://raw.githubusercontent.com/lea325/healthclassifier-ml/refs/heads/main/%20Formulaire%20sans%20titre.csv"
     df = pd.read_csv(url)
     df.columns = ['timestamp','age','skip_meals','fruits','cooking',
                   'water','sport','sleep','rested','snacks','healthy']
@@ -117,10 +117,10 @@ with tab2:
     st.subheader("Métriques LOOCV — Leave-One-Out Cross-Validation")
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Recall · À risque",    "100%",   "vs 0% baseline")
-    c2.metric("Précision · À risque", "57.1%",  "4/7 alarmes justifiées")
+    c1.metric("Recall · À risque",    "100%",  "vs 0% baseline")
+    c2.metric("Précision · À risque", "57.1%", "4/7 alarmes justifiées")
     c3.metric("F1-Score Macro",       "80.8%")
-    c4.metric("AUC-ROC",              "0.80",   "vs 0.50 aléatoire")
+    c4.metric("AUC-ROC",              "0.80",  "vs 0.50 aléatoire")
 
     st.divider()
     col1, col2 = st.columns(2)
