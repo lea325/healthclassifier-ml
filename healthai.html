@@ -8,58 +8,48 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#F2F6FF;
-  --panel:#FFFFFF;
-  --blue:#1A5FD4;
-  --blue2:#2E7DFF;
-  --blue-light:#EBF2FF;
-  --teal:#00808C;
-  --green:#00875A;
-  --green-light:#E6F6F0;
-  --amber:#9A5000;
-  --amber-light:#FFF3E6;
-  --red:#B5290A;
-  --red-light:#FEF0EF;
-  --border:#D0DCF0;
-  --border2:#E8EFF8;
-  --text:#1A2744;
-  --text2:#4A5E7A;
-  --text3:#8A9BB8;
+  --bg:#F2F6FF;--blue:#1A5FD4;--blue2:#2E7DFF;--blue-light:#EBF2FF;
+  --teal:#00808C;--green:#00875A;--green-light:#E6F6F0;
+  --amber:#9A5000;--amber-light:#FFF3E6;--red:#B5290A;--red-light:#FEF0EF;
+  --border:#D0DCF0;--border2:#E8EFF8;--text:#1A2744;--text2:#4A5E7A;--text3:#8A9BB8;
 }
 html,body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-  background-image:linear-gradient(rgba(46,125,255,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(46,125,255,0.022) 1px,transparent 1px);
+  background-image:linear-gradient(rgba(46,125,255,0.022) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(46,125,255,0.022) 1px,transparent 1px);
   background-size:52px 52px}
 
-/* TOP BAR */
 .topbar{position:fixed;top:0;left:0;right:0;z-index:200;height:54px;
   background:rgba(255,255,255,0.97);border-bottom:1px solid var(--border);
   display:flex;align-items:center;justify-content:space-between;padding:0 32px;
   box-shadow:0 1px 8px rgba(26,95,212,0.06)}
 .brand{display:flex;align-items:center;gap:12px}
-.brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#1A5FD4,#2E7DFF);
+.brand-mark{width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(135deg,#1A5FD4,#2E7DFF);
   display:flex;align-items:center;justify-content:center;color:#fff;
-  font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;box-shadow:0 2px 8px rgba(26,95,212,0.28)}
-.brand-name{font-family:'Rajdhani',sans-serif;font-size:21px;font-weight:700;color:var(--blue);letter-spacing:0.1em}
+  font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;
+  box-shadow:0 2px 8px rgba(26,95,212,0.28)}
+.brand-name{font-family:'Rajdhani',sans-serif;font-size:21px;font-weight:700;
+  color:var(--blue);letter-spacing:0.1em}
 .brand-sep{width:1px;height:22px;background:var(--border);margin:0 14px}
 .brand-sub{font-size:12px;color:var(--text2)}
 .topbar-right{display:flex;align-items:center;gap:14px}
-.live{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:var(--green);letter-spacing:0.06em}
-.live::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--green);
-  box-shadow:0 0 8px rgba(0,135,90,0.5);animation:blink 2s ease infinite}
+.live{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;
+  color:var(--green);letter-spacing:0.06em}
+.live::before{content:'';width:7px;height:7px;border-radius:50%;
+  background:var(--green);box-shadow:0 0 8px rgba(0,135,90,0.5);
+  animation:blink 2s ease infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
 .dr-pill{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:600;
-  letter-spacing:0.08em;background:var(--blue-light);color:var(--blue);border:1px solid rgba(46,125,255,0.2)}
+  letter-spacing:0.08em;background:var(--blue-light);color:var(--blue);
+  border:1px solid rgba(46,125,255,0.2)}
 
-/* LAYOUT */
 .shell{padding-top:54px;display:grid;grid-template-columns:300px 1fr 300px;min-height:100vh}
 
-/* SIDE */
 .side{background:rgba(255,255,255,0.92);border-right:1px solid var(--border);
   padding:20px 18px;display:flex;flex-direction:column;gap:14px;overflow-y:auto}
 .side.right{border-right:none;border-left:1px solid var(--border)}
 
-/* BLOCK */
 .block{background:#fff;border:1px solid var(--border);border-radius:10px;
   padding:14px 16px;box-shadow:0 1px 4px rgba(26,95,212,0.04)}
 .block-hdr{display:flex;align-items:center;gap:8px;margin-bottom:12px;
@@ -69,7 +59,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .block-title{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;
   color:var(--text2);letter-spacing:0.12em;text-transform:uppercase}
 
-/* PATIENT */
 .avatar-wrap{width:68px;height:68px;margin:6px auto 10px;position:relative}
 .avatar-ring{position:absolute;inset:-7px;border-radius:50%;
   border:1px dashed rgba(46,125,255,0.22);animation:spin 14s linear infinite}
@@ -82,13 +71,13 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .p-name{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;
   color:var(--text);text-align:center;margin-bottom:2px}
 .p-sub{font-size:11px;color:var(--text3);text-align:center;margin-bottom:10px}
-.p-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin-bottom:10px}
+.p-divider{height:1px;
+  background:linear-gradient(90deg,transparent,var(--border),transparent);margin-bottom:10px}
 .info-row{display:flex;justify-content:space-between;padding:5px 0;
   font-size:11.5px;border-bottom:1px solid var(--border2)}
 .info-row:last-child{border-bottom:none}
 .ik{color:var(--text3);font-weight:500}.iv{color:var(--text);font-weight:600}
 
-/* INPUTS */
 .inp-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
 .inp{width:100%;padding:7px 10px;background:#F8FAFF;border:1px solid var(--border);
   border-radius:6px;font-size:12px;color:var(--text);font-family:'Inter',sans-serif;
@@ -96,83 +85,88 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .inp:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(46,125,255,0.1)}
 .inp::placeholder{color:var(--text3)}
 
-/* QUESTIONS — fixed height so all rows align */
-.q-row{display:flex;align-items:center;min-height:44px;
-  padding:6px 0;border-bottom:1px solid var(--border2)}
+.q-row{display:flex;align-items:center;min-height:46px;
+  padding:5px 0;border-bottom:1px solid var(--border2)}
 .q-row:last-child{border-bottom:none}
 .q-lbl{font-size:12px;color:var(--text);flex:1;line-height:1.35;padding-right:10px}
-.toggle{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0}
-.t-btn{padding:5px 10px;font-size:11px;font-weight:500;background:transparent;
+.toggle{display:flex;border:1px solid var(--border);border-radius:6px;
+  overflow:hidden;flex-shrink:0}
+.t-btn{padding:6px 11px;font-size:11px;font-weight:500;background:transparent;
   border:none;cursor:pointer;color:var(--text3);transition:all .12s;
-  font-family:'Inter',sans-serif;white-space:nowrap}
+  font-family:'Inter',sans-serif;white-space:nowrap;line-height:1}
 .t-btn+.t-btn{border-left:1px solid var(--border)}
 .t-btn.on{background:var(--blue);color:#fff}
 .t-btn.on-r{background:var(--red);color:#fff}
 
-/* CENTER */
+.ctx-box{background:var(--blue-light);border:1px solid rgba(46,125,255,0.18);
+  border-radius:10px;padding:14px 16px}
+.ctx-title{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;
+  color:var(--blue);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px}
+.ctx-body{font-size:11.5px;color:var(--text2);line-height:1.65}
+
 .center{position:relative;display:flex;flex-direction:column;align-items:center;
-  padding:22px 20px 28px;gap:16px;background:linear-gradient(180deg,rgba(240,245,255,0.5),rgba(232,240,255,0.7))}
+  padding:22px 20px 28px;gap:16px;
+  background:linear-gradient(180deg,rgba(240,245,255,0.5),rgba(232,240,255,0.7))}
 
-/* HOLO AREA — score BELOW figure */
-.holo-area{position:relative;width:100%;max-width:540px;height:320px;flex-shrink:0}
+.holo-area{position:relative;width:100%;max-width:540px;height:310px;flex-shrink:0}
 .holo-svg{position:absolute;inset:0;width:100%;height:100%}
-
-.figure-svg{
-  position:absolute;left:50%;top:46%;
-  transform:translate(-50%,-50%);
-  width:100px;height:200px;
-  filter:drop-shadow(0 0 14px rgba(46,125,255,0.38)) drop-shadow(0 0 32px rgba(0,128,140,0.14));
+.figure-svg{position:absolute;left:50%;top:48%;
+  transform:translate(-50%,-50%);width:100px;height:200px;
+  filter:drop-shadow(0 0 14px rgba(46,125,255,0.38))
+    drop-shadow(0 0 32px rgba(0,128,140,0.14));
   animation:float 5s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,-52%)}}
-
-.platform{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);
+.platform{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);
   width:90px;height:7px;
   background:radial-gradient(ellipse,rgba(46,125,255,0.28),transparent 70%);
   animation:plat 3s ease-in-out infinite}
 @keyframes plat{0%,100%{opacity:.5;width:80px}50%{opacity:1;width:108px}}
-
-.holo-name{position:absolute;bottom:3%;left:50%;transform:translateX(-50%);
+.holo-name{position:absolute;bottom:2%;left:50%;transform:translateX(-50%);
   font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;
   color:var(--blue2);letter-spacing:0.18em;text-transform:uppercase;
   white-space:nowrap;opacity:0.65}
-
-/* Data points */
 .dp{position:absolute;display:flex;align-items:center;gap:5px;
   font-size:10px;font-weight:600;font-family:'Rajdhani',sans-serif;letter-spacing:0.05em}
-.dp-dot{width:5px;height:5px;border-radius:50%;border:1.5px solid currentColor;background:#fff;flex-shrink:0}
+.dp-dot{width:5px;height:5px;border-radius:50%;
+  border:1.5px solid currentColor;background:#fff;flex-shrink:0}
 .dp-line{height:1px;background:currentColor;opacity:0.3}
 .dp-val{white-space:nowrap;font-size:10px}
 
-/* SCORE ZONE — standalone below hologram, NOT overlapping */
-.score-zone{
+/* SCORE CARD — completely separate from hologram */
+.score-card{
   width:100%;max-width:540px;
-  display:flex;align-items:center;gap:24px;
   background:#fff;border:1px solid var(--border);border-radius:12px;
-  padding:18px 24px;box-shadow:0 1px 6px rgba(26,95,212,0.05)}
-.ring-wrap{position:relative;width:110px;height:110px;flex-shrink:0}
-.ring-wrap svg{transform:rotate(-90deg)}
-.ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center}
-.score-num{font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;line-height:1}
-.score-lbl{font-size:9px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px}
-.score-right{flex:1}
+  padding:20px 24px;box-shadow:0 1px 6px rgba(26,95,212,0.05);
+  display:flex;align-items:center;gap:0}
+.score-left{flex-shrink:0;width:200px;padding-right:22px;
+  border-right:1px solid var(--border2)}
+.score-pct{font-family:'Rajdhani',sans-serif;font-size:60px;font-weight:700;
+  line-height:1;margin-bottom:3px}
+.score-pct-lbl{font-size:10px;color:var(--text3);letter-spacing:0.08em;
+  text-transform:uppercase;margin-bottom:12px}
+.score-track{height:7px;background:var(--border2);border-radius:99px;
+  overflow:hidden;margin-bottom:5px}
+.score-fill{height:100%;border-radius:99px;transition:width .6s ease,background .3s}
+.score-legend{display:flex;justify-content:space-between;font-size:9px;color:var(--text3)}
+.score-right{flex:1;padding-left:22px}
 .v-chip{display:inline-block;padding:4px 12px;border-radius:5px;
   font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;
-  letter-spacing:0.1em;text-transform:uppercase;margin-bottom:7px}
+  letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
 .vc-g{background:var(--green-light);color:var(--green);border:1px solid rgba(0,135,90,0.2)}
 .vc-a{background:var(--amber-light);color:var(--amber);border:1px solid rgba(154,80,0,0.2)}
 .vc-r{background:var(--red-light);color:var(--red);border:1px solid rgba(181,41,10,0.2)}
-.v-txt{font-size:12.5px;color:var(--text2);line-height:1.6}
+.v-txt{font-size:12.5px;color:var(--text2);line-height:1.65}
 
-/* STATS */
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:540px}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  width:100%;max-width:540px}
 .stat-card{background:#fff;border:1px solid var(--border);border-radius:8px;
   padding:12px;text-align:center;box-shadow:0 1px 4px rgba(26,95,212,0.04)}
-.stat-val{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;line-height:1;margin-bottom:3px}
+.stat-val{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;
+  line-height:1;margin-bottom:3px}
 .stat-lbl{font-size:9.5px;color:var(--text3);letter-spacing:0.07em;text-transform:uppercase}
 
-/* INDICATORS */
-.ind-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border2)}
+.ind-row{display:flex;align-items:center;gap:10px;padding:6px 0;
+  border-bottom:1px solid var(--border2)}
 .ind-row:last-child{border-bottom:none}
 .ind-lbl{font-size:11.5px;color:var(--text2);width:120px;flex-shrink:0}
 .ind-track{flex:1;height:5px;background:var(--border2);border-radius:99px;overflow:hidden}
@@ -181,7 +175,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .ir{background:linear-gradient(90deg,#F08080,#B5290A)}
 .ind-status{font-size:10.5px;font-weight:600;width:76px;text-align:right;flex-shrink:0}
 
-/* RECO items */
 .reco-item{display:flex;gap:10px;padding:9px 0;
   border-bottom:1px solid var(--border2);align-items:flex-start}
 .reco-item:last-child{border-bottom:none}
@@ -194,26 +187,19 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .reco-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
 .reco-detail{font-size:11.5px;color:var(--text2);line-height:1.55}
 
-/* FOLLOWUP */
 .fu-box{margin-top:10px;padding:14px;background:var(--blue-light);
   border-radius:8px;border:1px solid rgba(46,125,255,0.15);text-align:center}
 .fu-val{font-family:'Rajdhani',sans-serif;font-size:30px;font-weight:700;line-height:1}
-.fu-lbl{font-size:10px;color:var(--text3);margin-top:3px;letter-spacing:0.06em;text-transform:uppercase}
-
+.fu-lbl{font-size:10px;color:var(--text3);margin-top:3px;
+  letter-spacing:0.06em;text-transform:uppercase}
 .alert-box{border-radius:8px;padding:11px 14px;font-size:12px;
   color:var(--text);line-height:1.6;margin-top:10px;border:1px solid}
 .ag{background:var(--green-light);border-color:rgba(0,135,90,0.2)}
 .aa{background:var(--amber-light);border-color:rgba(154,80,0,0.2)}
 .ar{background:var(--red-light);border-color:rgba(181,41,10,0.2)}
-
-.disclaimer{font-size:10.5px;color:var(--text3);padding:10px 14px;text-align:center;
-  background:#F8FAFF;border:1px solid var(--border);border-radius:8px;line-height:1.5}
-
-/* Context box */
-.ctx-box{background:var(--blue-light);border:1px solid rgba(46,125,255,0.18);border-radius:10px;padding:14px 16px}
-.ctx-title{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;
-  color:var(--blue);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px}
-.ctx-body{font-size:11.5px;color:var(--text2);line-height:1.65}
+.disclaimer{font-size:10.5px;color:var(--text3);padding:10px 14px;
+  text-align:center;background:#F8FAFF;border:1px solid var(--border);
+  border-radius:8px;line-height:1.5}
 
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -237,7 +223,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
 <div class="shell">
 
-<!-- ══ GAUCHE ══ -->
+<!-- GAUCHE -->
 <div class="side">
 
   <div class="ctx-box">
@@ -249,10 +235,10 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     <div class="block-hdr"><div class="block-bar"></div><div class="block-title">Identité du patient</div></div>
     <div class="inp-grid">
       <input class="inp" id="prenom" placeholder="Prénom" value="Marie" oninput="update()">
-      <input class="inp" id="nom"    placeholder="Nom"    value="Dupont" oninput="update()">
+      <input class="inp" id="nom" placeholder="Nom" value="Dupont" oninput="update()">
     </div>
     <div class="inp-grid">
-      <input class="inp" id="age"     type="number" placeholder="Âge" value="42" oninput="update()">
+      <input class="inp" id="age" type="number" placeholder="Âge" value="42" oninput="update()">
       <input class="inp" id="medecin" placeholder="Médecin traitant" value="Dr. Martin" oninput="update()">
     </div>
     <div class="avatar-wrap">
@@ -260,7 +246,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="avatar" id="avatar">MD</div>
     </div>
     <div class="p-name" id="pname">Marie Dupont</div>
-    <div class="p-sub"  id="psub">42 ans · Consultation mode de vie</div>
+    <div class="p-sub" id="psub">42 ans · Consultation mode de vie</div>
     <div class="p-divider"></div>
     <div class="info-row"><span class="ik">Médecin traitant</span><span class="iv" id="info-med">Dr. Martin</span></div>
     <div class="info-row"><span class="ik">Type d'évaluation</span><span class="iv">Mode de vie</span></div>
@@ -273,28 +259,28 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="q-lbl">Fruits & légumes / jour</div>
       <div class="toggle">
         <button class="t-btn on" id="b-fruits-1" onclick="set('fruits',1)">≥ 2 portions</button>
-        <button class="t-btn"    id="b-fruits-0" onclick="set('fruits',0)">< 2 portions</button>
+        <button class="t-btn" id="b-fruits-0" onclick="set('fruits',0)">< 2 portions</button>
       </div>
     </div>
     <div class="q-row">
       <div class="q-lbl">Mode alimentaire</div>
       <div class="toggle">
         <button class="t-btn on" id="b-cooking-1" onclick="set('cooking',1)">Maison</button>
-        <button class="t-btn"    id="b-cooking-0" onclick="set('cooking',0)">Livraison</button>
+        <button class="t-btn" id="b-cooking-0" onclick="set('cooking',0)">Livraison</button>
       </div>
     </div>
     <div class="q-row">
       <div class="q-lbl">Grignotage inter-repas</div>
       <div class="toggle">
         <button class="t-btn on" id="b-snacks-1" onclick="set('snacks',1)">Absent</button>
-        <button class="t-btn"    id="b-snacks-0" onclick="set('snacks',0)">Régulier</button>
+        <button class="t-btn" id="b-snacks-0" onclick="set('snacks',0)">Régulier</button>
       </div>
     </div>
     <div class="q-row">
       <div class="q-lbl">Régularité des repas</div>
       <div class="toggle">
         <button class="t-btn on" id="b-skip-1" onclick="set('skip',1)">Réguliers</button>
-        <button class="t-btn"    id="b-skip-0" onclick="set('skip',0)">Sautés</button>
+        <button class="t-btn" id="b-skip-0" onclick="set('skip',0)">Sautés</button>
       </div>
     </div>
   </div>
@@ -305,14 +291,14 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="q-lbl">Consommation d'eau / jour</div>
       <div class="toggle">
         <button class="t-btn on" id="b-water-1" onclick="set('water',1)">≥ 1,5 L</button>
-        <button class="t-btn"    id="b-water-0" onclick="set('water',0)">< 1,5 L</button>
+        <button class="t-btn" id="b-water-0" onclick="set('water',0)">< 1,5 L</button>
       </div>
     </div>
     <div class="q-row">
       <div class="q-lbl">Durée du sommeil / nuit</div>
       <div class="toggle">
         <button class="t-btn on" id="b-sleep-1" onclick="set('sleep',1)">≥ 7 heures</button>
-        <button class="t-btn"    id="b-sleep-0" onclick="set('sleep',0)">< 7 heures</button>
+        <button class="t-btn" id="b-sleep-0" onclick="set('sleep',0)">< 7 heures</button>
       </div>
     </div>
   </div>
@@ -323,43 +309,38 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="q-lbl">Séances / semaine (min. 30 min)</div>
       <div class="toggle">
         <button class="t-btn on" id="b-sport-1" onclick="set('sport',1)">≥ 3 séances</button>
-        <button class="t-btn"    id="b-sport-0" onclick="set('sport',0)">< 3 séances</button>
+        <button class="t-btn" id="b-sport-0" onclick="set('sport',0)">< 3 séances</button>
       </div>
     </div>
   </div>
 
 </div>
 
-<!-- ══ CENTRE ══ -->
+<!-- CENTRE -->
 <div class="center">
 
-  <!-- Hologram — figure ONLY, no score overlapping -->
   <div class="holo-area">
-    <svg class="holo-svg" viewBox="0 0 540 320" fill="none">
-      <ellipse cx="270" cy="170" rx="235" ry="158" stroke="rgba(46,125,255,0.05)" stroke-width="1"/>
-      <ellipse cx="270" cy="170" rx="190" ry="128" stroke="rgba(46,125,255,0.07)" stroke-width="1"/>
-      <ellipse cx="270" cy="170" rx="145" ry="98"  stroke="rgba(46,125,255,0.09)" stroke-width="1.5"/>
-      <ellipse cx="270" cy="170" rx="100" ry="68"  stroke="rgba(46,125,255,0.07)" stroke-width="1"/>
-      <line x1="18"  y1="170" x2="522" y2="170" stroke="rgba(46,125,255,0.04)" stroke-width="1"/>
-      <line x1="270" y1="16"  x2="270" y2="308" stroke="rgba(46,125,255,0.04)" stroke-width="1"/>
-      <line x1="18" y1="105" x2="522" y2="105" stroke="rgba(46,125,255,0.03)" stroke-width="0.5" stroke-dasharray="4 10"/>
-      <line x1="18" y1="235" x2="522" y2="235" stroke="rgba(46,125,255,0.03)" stroke-width="0.5" stroke-dasharray="4 10"/>
-      <path d="M20 36 L20 18 L42 18" stroke="rgba(46,125,255,0.28)" stroke-width="1.5" fill="none"/>
-      <path d="M498 18 L520 18 L520 36" stroke="rgba(46,125,255,0.28)" stroke-width="1.5" fill="none"/>
-      <path d="M20 302 L20 302 L42 302" stroke="rgba(46,125,255,0.28)" stroke-width="1.5" fill="none"/>
-      <path d="M20 284 L20 302" stroke="rgba(46,125,255,0.28)" stroke-width="1.5" fill="none"/>
-      <path d="M520 284 L520 302 L498 302" stroke="rgba(46,125,255,0.28)" stroke-width="1.5" fill="none"/>
-      <!-- connectors left -->
-      <line x1="92"  y1="92"  x2="193" y2="128" stroke="rgba(46,125,255,0.16)" stroke-width="1"/>
-      <line x1="70"  y1="170" x2="175" y2="170" stroke="rgba(0,128,140,0.16)"  stroke-width="1"/>
-      <line x1="82"  y1="248" x2="185" y2="214" stroke="rgba(46,125,255,0.16)" stroke-width="1"/>
-      <!-- connectors right -->
-      <line x1="448" y1="92"  x2="347" y2="128" stroke="rgba(46,125,255,0.16)" stroke-width="1"/>
-      <line x1="470" y1="170" x2="365" y2="170" stroke="rgba(0,128,140,0.16)"  stroke-width="1"/>
-      <line x1="458" y1="248" x2="355" y2="214" stroke="rgba(46,125,255,0.16)" stroke-width="1"/>
+    <svg class="holo-svg" viewBox="0 0 540 310" fill="none">
+      <ellipse cx="270" cy="162" rx="235" ry="150" stroke="rgba(46,125,255,0.05)" stroke-width="1"/>
+      <ellipse cx="270" cy="162" rx="190" ry="120" stroke="rgba(46,125,255,0.07)" stroke-width="1"/>
+      <ellipse cx="270" cy="162" rx="145" ry="92"  stroke="rgba(46,125,255,0.09)" stroke-width="1.5"/>
+      <ellipse cx="270" cy="162" rx="100" ry="64"  stroke="rgba(46,125,255,0.07)" stroke-width="1"/>
+      <line x1="18"  y1="162" x2="522" y2="162" stroke="rgba(46,125,255,0.04)" stroke-width="1"/>
+      <line x1="270" y1="14"  x2="270" y2="298" stroke="rgba(46,125,255,0.04)" stroke-width="1"/>
+      <line x1="18"  y1="100" x2="522" y2="100" stroke="rgba(46,125,255,0.03)" stroke-width="0.5" stroke-dasharray="4 10"/>
+      <line x1="18"  y1="224" x2="522" y2="224" stroke="rgba(46,125,255,0.03)" stroke-width="0.5" stroke-dasharray="4 10"/>
+      <path d="M20 34 L20 16 L42 16" stroke="rgba(46,125,255,0.28)" stroke-width="1.5" fill="none"/>
+      <path d="M498 16 L520 16 L520 34" stroke="rgba(46,125,255,0.28)" stroke-width="1.5" fill="none"/>
+      <path d="M20 276 L20 294 L42 294" stroke="rgba(46,125,255,0.28)" stroke-width="1.5" fill="none"/>
+      <path d="M520 276 L520 294 L498 294" stroke="rgba(46,125,255,0.28)" stroke-width="1.5" fill="none"/>
+      <line x1="92"  y1="88"  x2="193" y2="120" stroke="rgba(46,125,255,0.16)" stroke-width="1"/>
+      <line x1="70"  y1="162" x2="175" y2="162" stroke="rgba(0,128,140,0.16)"  stroke-width="1"/>
+      <line x1="82"  y1="236" x2="185" y2="205" stroke="rgba(46,125,255,0.16)" stroke-width="1"/>
+      <line x1="448" y1="88"  x2="347" y2="120" stroke="rgba(46,125,255,0.16)" stroke-width="1"/>
+      <line x1="470" y1="162" x2="365" y2="162" stroke="rgba(0,128,140,0.16)"  stroke-width="1"/>
+      <line x1="458" y1="236" x2="355" y2="205" stroke="rgba(46,125,255,0.16)" stroke-width="1"/>
     </svg>
 
-    <!-- Anatomical figure -->
     <svg class="figure-svg" viewBox="0 0 80 200" fill="none">
       <ellipse cx="40" cy="17" rx="13" ry="14" stroke="#1A5FD4" stroke-width="1.4" fill="rgba(46,125,255,0.07)"/>
       <rect x="35.5" y="30" width="9" height="7" rx="2" stroke="#1A5FD4" stroke-width="1.2" fill="rgba(46,125,255,0.05)"/>
@@ -379,16 +360,15 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
     <div class="platform"></div>
 
-    <!-- Data points — no overlap with figure -->
     <div class="dp" style="left:4px;top:22%;color:#1A5FD4;flex-direction:row">
       <div class="dp-dot"></div><div class="dp-line" style="width:22px"></div>
       <div class="dp-val" id="dp-alim">Alimentation — OK</div>
     </div>
-    <div class="dp" style="left:2px;top:50%;color:#00808C;flex-direction:row">
+    <div class="dp" style="left:2px;top:49%;color:#00808C;flex-direction:row">
       <div class="dp-dot"></div><div class="dp-line" style="width:20px"></div>
       <div class="dp-val" id="dp-hydra">Hydratation — OK</div>
     </div>
-    <div class="dp" style="left:4px;top:74%;color:#1A5FD4;flex-direction:row">
+    <div class="dp" style="left:4px;top:73%;color:#1A5FD4;flex-direction:row">
       <div class="dp-dot"></div><div class="dp-line" style="width:22px"></div>
       <div class="dp-val" id="dp-sport">Activité — OK</div>
     </div>
@@ -396,11 +376,11 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="dp-dot"></div><div class="dp-line" style="width:22px"></div>
       <div class="dp-val" id="dp-sleep">Sommeil — OK</div>
     </div>
-    <div class="dp" style="right:0px;top:50%;color:#00808C;flex-direction:row-reverse">
+    <div class="dp" style="right:0;top:49%;color:#00808C;flex-direction:row-reverse">
       <div class="dp-dot"></div><div class="dp-line" style="width:20px"></div>
       <div class="dp-val" id="dp-cook">Cuisine — OK</div>
     </div>
-    <div class="dp" style="right:2px;top:74%;color:#1A5FD4;flex-direction:row-reverse">
+    <div class="dp" style="right:2px;top:73%;color:#1A5FD4;flex-direction:row-reverse">
       <div class="dp-dot"></div><div class="dp-line" style="width:22px"></div>
       <div class="dp-val" id="dp-snack">Grignotage — Absent</div>
     </div>
@@ -408,23 +388,20 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     <div class="holo-name" id="holo-name">Marie Dupont · Analyse mode de vie</div>
   </div>
 
-  <!-- SCORE ZONE — clean card, no ring duplication -->
-  <div class="score-zone">
+  <!-- SCORE CARD — séparée de la silhouette -->
+  <div class="score-card">
     <div class="score-left">
-      <div class="score-big-num" id="score-num" style="color:#00875A">75%</div>
-      <div class="score-big-lbl">Probabilité de bonne santé</div>
-      <div class="score-bar-wrap">
-        <div class="score-bar-track">
-          <div class="score-bar-fill" id="score-bar" style="width:75%;background:#00875A"></div>
-        </div>
-        <div class="score-bar-legend">
-          <span>À risque</span>
-          <span style="color:#9A5000">Seuil 45%</span>
-          <span>Favorable</span>
-        </div>
+      <div class="score-pct" id="score-pct" style="color:#00875A">75%</div>
+      <div class="score-pct-lbl">Probabilité de bonne santé</div>
+      <div class="score-track">
+        <div class="score-fill" id="score-fill" style="width:75%;background:#00875A"></div>
+      </div>
+      <div class="score-legend">
+        <span>À risque</span>
+        <span style="color:#9A5000">Seuil 45%</span>
+        <span>Favorable</span>
       </div>
     </div>
-    <div class="score-divider"></div>
     <div class="score-right">
       <div><span class="v-chip vc-g" id="v-chip">Profil favorable</span></div>
       <div class="v-txt" id="v-txt">Les habitudes de vie de ce patient sont globalement satisfaisantes. Un suivi standard lors des consultations de routine est recommandé.</div>
@@ -447,13 +424,13 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     </div>
   </div>
 
-  <!-- INDICATORS -->
+  <!-- BILAN HABITUDES -->
   <div class="block" style="width:100%;max-width:540px">
     <div class="block-hdr"><div class="block-bar"></div><div class="block-title">Bilan des habitudes évaluées</div></div>
     <div class="ind-row"><div class="ind-lbl">Fruits & légumes</div><div class="ind-track"><div class="ind-fill ig" id="bar-fruits" style="width:100%"></div></div><div class="ind-status" id="is-fruits" style="color:#00875A">Favorable</div></div>
-    <div class="ind-row"><div class="ind-lbl">Activité physique</div><div class="ind-track"><div class="ind-fill ig" id="bar-sport"  style="width:100%"></div></div><div class="ind-status" id="is-sport"  style="color:#00875A">Favorable</div></div>
-    <div class="ind-row"><div class="ind-lbl">Hydratation</div><div class="ind-track"><div class="ind-fill ig" id="bar-water"  style="width:100%"></div></div><div class="ind-status" id="is-water"  style="color:#00875A">Favorable</div></div>
-    <div class="ind-row"><div class="ind-lbl">Sommeil</div><div class="ind-track"><div class="ind-fill ig" id="bar-sleep"  style="width:100%"></div></div><div class="ind-status" id="is-sleep"  style="color:#00875A">Favorable</div></div>
+    <div class="ind-row"><div class="ind-lbl">Activité physique</div><div class="ind-track"><div class="ind-fill ig" id="bar-sport"   style="width:100%"></div></div><div class="ind-status" id="is-sport"   style="color:#00875A">Favorable</div></div>
+    <div class="ind-row"><div class="ind-lbl">Hydratation</div><div class="ind-track"><div class="ind-fill ig" id="bar-water"   style="width:100%"></div></div><div class="ind-status" id="is-water"   style="color:#00875A">Favorable</div></div>
+    <div class="ind-row"><div class="ind-lbl">Sommeil</div><div class="ind-track"><div class="ind-fill ig" id="bar-sleep"   style="width:100%"></div></div><div class="ind-status" id="is-sleep"   style="color:#00875A">Favorable</div></div>
     <div class="ind-row"><div class="ind-lbl">Cuisine maison</div><div class="ind-track"><div class="ind-fill ig" id="bar-cooking" style="width:100%"></div></div><div class="ind-status" id="is-cooking" style="color:#00875A">Favorable</div></div>
     <div class="ind-row"><div class="ind-lbl">Régularité repas</div><div class="ind-track"><div class="ind-fill ig" id="bar-skip"    style="width:100%"></div></div><div class="ind-status" id="is-skip"    style="color:#00875A">Réguliers</div></div>
     <div class="ind-row"><div class="ind-lbl">Grignotage</div><div class="ind-track"><div class="ind-fill ig" id="bar-snacks"  style="width:100%"></div></div><div class="ind-status" id="is-snacks"  style="color:#00875A">Absent</div></div>
@@ -461,7 +438,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
 </div>
 
-<!-- ══ DROITE ══ -->
+<!-- DROITE -->
 <div class="side right">
 
   <div class="block">
@@ -476,14 +453,12 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="fu-val" id="fu-val" style="color:#00875A">75%</div>
       <div class="fu-lbl">Probabilité de bonne santé</div>
     </div>
-    <div class="alert-box ag" id="alert-box">Profil satisfaisant sur l'ensemble des critères. Encourager le maintien des habitudes actuelles.</div>
+    <div class="alert-box ag" id="alert-box">Profil satisfaisant. Encourager le maintien des habitudes actuelles.</div>
   </div>
 
   <div class="block">
     <div class="block-hdr"><div class="block-bar"></div><div class="block-title">Synthèse clinique</div></div>
-    <div style="font-size:12px;color:var(--text2);line-height:1.7" id="synthese">
-      Les deux facteurs les plus déterminants — alimentation et activité physique — sont dans les normes recommandées. Profil compatible avec une bonne santé générale.
-    </div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.7" id="synthese">Les deux facteurs les plus déterminants — alimentation et activité physique — sont dans les normes recommandées. Profil compatible avec une bonne santé générale.</div>
   </div>
 
   <div class="disclaimer">
@@ -496,6 +471,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
 <script>
 const st={fruits:1,sport:1,water:1,sleep:1,cooking:1,snacks:1,skip:1};
+
 function sig(z){return 1/(1+Math.exp(-z))}
 function prob(){return Math.round(sig(-0.8624+1.881*st.fruits+0.740*st.sport)*1000)/10}
 
@@ -522,34 +498,13 @@ function update(){
 }
 
 const recoData={
-  fruits:{
-    title:'Augmenter la consommation de fruits & légumes',
-    detail:'Objectif : 2 portions minimum par jour. Privilégier les légumes crus ou cuits à la vapeur. Conformément aux recommandations OMS.'
-  },
-  sport:{
-    title:'Prescrire une activité physique régulière',
-    detail:'Objectif : 3 séances de 30 minutes minimum par semaine. Marche rapide, natation ou vélo selon les capacités du patient.'
-  },
-  snacks:{
-    title:'Réduire le grignotage inter-repas',
-    detail:'Supprimer les aliments à haute densité calorique entre les repas. Si collation nécessaire : fruits frais ou oléagineux.'
-  },
-  water:{
-    title:'Corriger le déficit hydrique',
-    detail:'Objectif : 1,5 à 2 litres d\'eau par jour. Le déficit hydrique chronique est associé à une augmentation du risque cardiovasculaire et rénal.'
-  },
-  sleep:{
-    title:'Améliorer l\'hygiène du sommeil',
-    detail:'Objectif : 7 heures minimum par nuit. La privation chronique de sommeil est un facteur de risque indépendant de diabète, hypertension et surpoids.'
-  },
-  cooking:{
-    title:'Réduire la consommation de plats préparés',
-    detail:'Recommander la cuisine à domicile. Les plats préparés et la restauration rapide présentent des teneurs élevées en sel, sucre et graisses saturées.'
-  },
-  skip:{
-    title:'Structurer les prises alimentaires',
-    detail:'Objectif : 3 repas réguliers par jour. Le saut de repas est associé à des comportements compensatoires et à une dégradation du métabolisme glucidique.'
-  }
+  fruits:{title:'Augmenter la consommation de fruits & légumes',detail:'Objectif : 2 portions minimum par jour. Privilégier les légumes crus ou cuits à la vapeur. Recommandation OMS.'},
+  sport:{title:'Prescrire une activité physique régulière',detail:'Objectif : 3 séances de 30 min minimum par semaine. Marche rapide, natation ou vélo selon les capacités du patient.'},
+  snacks:{title:'Réduire le grignotage inter-repas',detail:'Supprimer les aliments à haute densité calorique entre les repas. Si collation nécessaire : fruits frais ou oléagineux.'},
+  water:{title:'Corriger le déficit hydrique',detail:'Objectif : 1,5 à 2 litres d\'eau par jour. Le déficit hydrique chronique augmente le risque cardiovasculaire et rénal.'},
+  sleep:{title:'Améliorer l\'hygiène du sommeil',detail:'Objectif : 7 heures minimum par nuit. La privation chronique est un facteur de risque indépendant de diabète, HTA et surpoids.'},
+  cooking:{title:'Réduire la consommation de plats préparés',detail:'Recommander la cuisine à domicile. Les plats préparés présentent des teneurs élevées en sel, sucre et graisses saturées.'},
+  skip:{title:'Structurer les prises alimentaires',detail:'Objectif : 3 repas réguliers par jour. Le saut de repas est associé à une dégradation du métabolisme glucidique.'}
 };
 
 function render(){
@@ -559,32 +514,30 @@ function render(){
   const bad=keys.filter(k=>st[k]===0).length;
 
   let col,chipCls,chipTxt,vTxt,fuTxt,alertCls,alertTxt,synthese;
-
   if(pct>=65){
     col='#00875A';chipCls='vc-g';chipTxt='Profil favorable';
     vTxt='Les habitudes de vie de ce patient sont globalement satisfaisantes. Un suivi standard lors des consultations de routine est recommandé.';
     fuTxt='Reconduire l\'évaluation lors du bilan annuel.';
-    alertCls='ag';alertTxt='Profil satisfaisant sur l\'ensemble des critères. Encourager le maintien des habitudes actuelles.';
+    alertCls='ag';alertTxt='Profil satisfaisant. Encourager le maintien des habitudes actuelles.';
     synthese='Les deux facteurs les plus déterminants — alimentation et activité physique — sont dans les normes recommandées. Profil compatible avec une bonne santé générale.';
   } else if(pct>=45){
     col='#9A5000';chipCls='vc-a';chipTxt='Vigilance recommandée';
-    vTxt='Les habitudes de vie présentent des facteurs de risque modérés nécessitant une attention clinique. Des recommandations hygiéno-diététiques ciblées sont indiquées.';
-    fuTxt='Consultation de suivi préventif recommandée dans les 3 mois.';
-    alertCls='aa';alertTxt='Des facteurs de risque ont été identifiés. Mettre en place les recommandations ci-contre et réévaluer lors de la prochaine consultation.';
-    synthese='Profil partiellement défavorable. Un accompagnement comportemental ciblé permettrait d\'améliorer significativement l\'état de santé général du patient.';
+    vTxt='Les habitudes de vie présentent des facteurs de risque modérés. Des recommandations hygiéno-diététiques ciblées sont indiquées et un suivi préventif renforcé est suggéré.';
+    fuTxt='Consultation préventive recommandée dans les 3 mois.';
+    alertCls='aa';alertTxt='Des facteurs de risque ont été identifiés. Mettre en place les recommandations et réévaluer à la prochaine consultation.';
+    synthese='Profil partiellement défavorable. Un accompagnement comportemental ciblé permettrait d\'améliorer significativement l\'état de santé général.';
   } else {
     col='#B5290A';chipCls='vc-r';chipTxt='Bilan clinique requis';
-    vTxt='Le profil présente plusieurs facteurs de risque cumulés. Un bilan clinique approfondi est recommandé afin d\'évaluer l\'impact sur l\'état de santé. Ne pas différer la prise en charge.';
+    vTxt='Le profil présente plusieurs facteurs de risque cumulés. Un bilan clinique approfondi est recommandé. Ne pas différer la prise en charge.';
     fuTxt='Bilan clinique à planifier dans les 4 semaines.';
     alertCls='ar';alertTxt='Plusieurs facteurs de risque identifiés. Une prise en charge sans délai est recommandée.';
-    synthese='L\'accumulation de plusieurs habitudes défavorables constitue un profil à risque nécessitant une intervention préventive rapide pour limiter l\'impact sur la santé à long terme.';
+    synthese='L\'accumulation de plusieurs habitudes défavorables constitue un profil à risque nécessitant une intervention préventive rapide.';
   }
 
-  // Score bar
-  document.getElementById('score-num').textContent=pct+'%';
-  document.getElementById('score-num').style.color=col;
-  document.getElementById('score-bar').style.width=pct+'%';
-  document.getElementById('score-bar').style.background=col;
+  document.getElementById('score-pct').textContent=pct+'%';
+  document.getElementById('score-pct').style.color=col;
+  document.getElementById('score-fill').style.width=pct+'%';
+  document.getElementById('score-fill').style.background=col;
   const vc=document.getElementById('v-chip');
   vc.className='v-chip '+chipCls;vc.textContent=chipTxt;
   document.getElementById('v-txt').textContent=vTxt;
@@ -599,7 +552,6 @@ function render(){
   ab.className='alert-box '+alertCls;ab.textContent=alertTxt;
   document.getElementById('synthese').textContent=synthese;
 
-  // Indicators
   const labels={
     fruits:['Favorable','Insuffisant'],sport:['Favorable','Insuffisant'],
     water:['Favorable','Insuffisant'],sleep:['Favorable','Insuffisant'],
@@ -607,15 +559,13 @@ function render(){
   };
   keys.forEach(k=>{
     const v=st[k];
-    const bar=document.getElementById('bar-'+k);
-    bar.className='ind-fill '+(v?'ig':'ir');
-    bar.style.width=v?'100%':'16%';
+    document.getElementById('bar-'+k).className='ind-fill '+(v?'ig':'ir');
+    document.getElementById('bar-'+k).style.width=v?'100%':'16%';
     const is=document.getElementById('is-'+k);
     is.textContent=v?labels[k][0]:labels[k][1];
     is.style.color=v?'#00875A':'#B5290A';
   });
 
-  // Data points
   const dpMap={
     fruits:['dp-alim','Alimentation'],water:['dp-hydra','Hydratation'],
     sport:['dp-sport','Activité'],sleep:['dp-sleep','Sommeil'],
@@ -629,25 +579,12 @@ function render(){
     el.style.fontWeight=v?'600':'700';
   });
 
-  // Recommendations — detailed clinical format
-  const list=document.getElementById('reco-list');
   const missing=keys.filter(k=>st[k]===0);
+  const list=document.getElementById('reco-list');
   if(!missing.length){
-    list.innerHTML=`<div class="reco-item">
-      <div class="reco-icon ri-green">✓</div>
-      <div class="reco-body">
-        <div class="reco-title">Aucune recommandation particulière</div>
-        <div class="reco-detail">L'ensemble des habitudes évaluées sont favorables. Encourager le maintien du mode de vie actuel et reconduire l'évaluation lors du prochain bilan annuel.</div>
-      </div></div>`;
+    list.innerHTML='<div class="reco-item"><div class="reco-icon ri-green">✓</div><div class="reco-body"><div class="reco-title">Aucune recommandation particulière</div><div class="reco-detail">Toutes les habitudes évaluées sont favorables. Encourager le maintien du mode de vie actuel et reconduire l\'évaluation au prochain bilan annuel.</div></div></div>';
   } else {
-    list.innerHTML=missing.map((k,i)=>`
-      <div class="reco-item">
-        <div class="reco-icon ri-blue">${i+1}</div>
-        <div class="reco-body">
-          <div class="reco-title">${recoData[k].title}</div>
-          <div class="reco-detail">${recoData[k].detail}</div>
-        </div>
-      </div>`).join('');
+    list.innerHTML=missing.map((k,i)=>`<div class="reco-item"><div class="reco-icon ri-blue">${i+1}</div><div class="reco-body"><div class="reco-title">${recoData[k].title}</div><div class="reco-detail">${recoData[k].detail}</div></div></div>`).join('');
   }
 }
 render();
