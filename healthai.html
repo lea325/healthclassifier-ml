@@ -408,19 +408,23 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     <div class="holo-name" id="holo-name">Marie Dupont · Analyse mode de vie</div>
   </div>
 
-  <!-- SCORE ZONE — standalone card, NOT overlapping figure -->
+  <!-- SCORE ZONE — clean card, no ring duplication -->
   <div class="score-zone">
-    <div class="ring-wrap">
-      <svg width="110" height="110" viewBox="0 0 110 110">
-        <circle cx="55" cy="55" r="46" fill="none" stroke="rgba(46,125,255,0.1)" stroke-width="8"/>
-        <circle id="ring-arc" cx="55" cy="55" r="46" fill="none" stroke="#00875A" stroke-width="8"
-          stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="72.25"/>
-      </svg>
-      <div class="ring-inner">
-        <div class="score-num" id="score-num" style="color:#00875A">75%</div>
-        <div class="score-lbl">Score santé</div>
+    <div class="score-left">
+      <div class="score-big-num" id="score-num" style="color:#00875A">75%</div>
+      <div class="score-big-lbl">Probabilité de bonne santé</div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-track">
+          <div class="score-bar-fill" id="score-bar" style="width:75%;background:#00875A"></div>
+        </div>
+        <div class="score-bar-legend">
+          <span>À risque</span>
+          <span style="color:#9A5000">Seuil 45%</span>
+          <span>Favorable</span>
+        </div>
       </div>
     </div>
+    <div class="score-divider"></div>
     <div class="score-right">
       <div><span class="v-chip vc-g" id="v-chip">Profil favorable</span></div>
       <div class="v-txt" id="v-txt">Les habitudes de vie de ce patient sont globalement satisfaisantes. Un suivi standard lors des consultations de routine est recommandé.</div>
@@ -492,8 +496,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
 <script>
 const st={fruits:1,sport:1,water:1,sleep:1,cooking:1,snacks:1,skip:1};
-const C=2*Math.PI*46;
-
 function sig(z){return 1/(1+Math.exp(-z))}
 function prob(){return Math.round(sig(-0.8624+1.881*st.fruits+0.740*st.sport)*1000)/10}
 
@@ -578,14 +580,11 @@ function render(){
     synthese='L\'accumulation de plusieurs habitudes défavorables constitue un profil à risque nécessitant une intervention préventive rapide pour limiter l\'impact sur la santé à long terme.';
   }
 
-  // Ring
-  const fill=C*pct/100;
-  const arc=document.getElementById('ring-arc');
-  arc.style.stroke=col;
-  arc.setAttribute('stroke-dasharray',fill+' '+(C-fill));
-  arc.setAttribute('stroke-dashoffset','0');
+  // Score bar
   document.getElementById('score-num').textContent=pct+'%';
   document.getElementById('score-num').style.color=col;
+  document.getElementById('score-bar').style.width=pct+'%';
+  document.getElementById('score-bar').style.background=col;
   const vc=document.getElementById('v-chip');
   vc.className='v-chip '+chipCls;vc.textContent=chipTxt;
   document.getElementById('v-txt').textContent=vTxt;
