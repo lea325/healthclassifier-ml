@@ -14,7 +14,8 @@ st.set_page_config(page_title="HealthClassifier", page_icon="🏥", layout="wide
 # ── LOAD & TRAIN ──
 @st.cache_data
 def load_and_train():
-    df = pd.read_csv("Formulaire sans titre.csv")
+    url = "https://raw.githubusercontent.com/lea325/healthclassifier-ml/main/Formulaire%20sans%20titre.csv"
+    df = pd.read_csv(url)
     df.columns = ['timestamp','age','skip_meals','fruits','cooking',
                   'water','sport','sleep','rested','snacks','healthy']
     enc = {
@@ -90,7 +91,7 @@ with tab1:
     with colA:
         st.metric("Probabilité P(sain|X)", f"{prob*100:.1f}%")
     with colB:
-        st.metric("Seuil de décision", "45%", help="Abaissé de 50% → 45% pour maximiser le recall sur classe à risque")
+        st.metric("Seuil de décision", "45%")
     with colC:
         verdict = "🟢 Sain" if is_sain else "🔴 À risque"
         st.metric("Classification", verdict)
@@ -116,7 +117,7 @@ with tab2:
     st.subheader("Métriques LOOCV — Leave-One-Out Cross-Validation")
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Recall · À risque",    "100%",   "vs 0% baseline", delta_color="normal")
+    c1.metric("Recall · À risque",    "100%",   "vs 0% baseline")
     c2.metric("Précision · À risque", "57.1%",  "4/7 alarmes justifiées")
     c3.metric("F1-Score Macro",       "80.8%")
     c4.metric("AUC-ROC",              "0.80",   "vs 0.50 aléatoire")
@@ -140,16 +141,17 @@ with tab2:
         nll_model    = log_loss(y, cv_probs)
         nll_baseline = log_loss(y, [y.mean()]*len(y))
         st.metric("NLL modèle (LOOCV)",  f"{nll_model:.4f}")
-        st.metric("NLL baseline (naïf)", f"{nll_baseline:.4f}", f"{nll_baseline-nll_model:.4f} de moins ✓")
-        st.caption("La NLL mesure la qualité de calibration des probabilités. Plus elle est basse, mieux le modèle est calibré.")
+        st.metric("NLL baseline (naïf)", f"{nll_baseline:.4f}",
+                  f"{nll_baseline-nll_model:.4f} de moins ✓")
+        st.caption("Plus la NLL est basse, mieux le modèle est calibré.")
 
     st.divider()
-    st.subheader("Choix des métriques — justification")
+    st.subheader("Justification des métriques")
     st.markdown("""
-- **Recall prioritaire** : FN = patient malade non détecté → risque vital. On ne peut pas se le permettre.
-- **F1-macro** : équilibre Précision/Recall sur les deux classes malgré le déséquilibre 79/21.
-- **AUC-ROC = 0.80** : le modèle discrimine correctement 80% du temps, indépendamment du seuil.
-- **Accuracy écartée** : avec 79% de sains, un modèle naïf (toujours "sain") atteindrait 79% sans rien apprendre.
+- **Recall prioritaire** : FN = patient malade non détecté → risque vital.
+- **F1-macro** : équilibre Précision/Recall malgré le déséquilibre 79/21.
+- **AUC-ROC = 0.80** : discrimination correcte 80% du temps, indépendamment du seuil.
+- **Accuracy écartée** : un modèle naïf atteindrait 79% sans rien apprendre.
     """)
 
 # ── TAB 3 : DÉTAILS TECH ──
@@ -173,7 +175,8 @@ with tab3:
         st.markdown("**Coefficients β après L1**")
         coef_data = {
             "Variable": ["🥦 Fruits & légumes", "🏃 Sport", "⏭️ Repas réguliers",
-                         "🍳 Cuisine maison", "💧 Hydratation", "😴 Sommeil", "😌 Reposé", "🍿 Snacks"],
+                         "🍳 Cuisine maison", "💧 Hydratation",
+                         "😴 Sommeil", "😌 Reposé", "🍿 Snacks"],
             "β": [1.881, 0.740, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
             "Statut": ["✅ ACTIF","✅ ACTIF","❌ Annulé L1","❌ Annulé L1",
                        "❌ Annulé L1","❌ Annulé L1","❌ Annulé L1","❌ Annulé L1"]
@@ -187,7 +190,7 @@ with tab3:
 |---|---|---|
 | Points de test | ~4 / fold | 1 (répété 19×) |
 | Biais estimateur | Élevé | Quasi nul |
-| Adaptabilité n=19 | ❌ Non représentatif | ✅ Optimal |
+| Adaptabilité n=19 | ❌ | ✅ |
 | Risque variance | Fort | Contrôlé |
     """)
-    st.info("**Règle d'or** : avec n=19, chaque observation est trop précieuse pour être mise de côté dans un fold. LOOCV maximise les données d'entraînement à chaque itération.")
+    st.info("Avec n=19, LOOCV maximise les données d'entraînement à chaque itération.")
