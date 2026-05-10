@@ -473,7 +473,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 const st={fruits:1,sport:1,water:1,sleep:1,cooking:1,snacks:1,skip:1};
 
 function sig(z){return 1/(1+Math.exp(-z))}
-function prob(){return Math.round(sig(-0.8624+1.881*st.fruits+0.740*st.sport)*1000)/10}
+function prob(){return Math.round(sig(-0.9667+2.6368*st.fruits+2.1793*st.sport)*1000)/10}
 
 function set(k,v){
   st[k]=v;
